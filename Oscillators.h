@@ -22,7 +22,7 @@ public:
         if (phase > 1.0f)
             phase -= 1.0f;
         
-        return amplitude * powf (output (phase + phaseOffset), power) + dc;
+        return (amplitude + amplitudeOffset) * powf (output (phase + phaseOffset), power) + dc;
     }
     
     /// placeholder function to specify output of an oscillator
@@ -58,10 +58,17 @@ public:
     }
 
     /// set amplitude (useful for amplitude modulation and LFOs)
-    /// @param float, phase offset
+    /// @param float, amplitude
     void setAmplitude (float _amplitude)
     {
         amplitude = _amplitude;
+    }
+
+    /// set amplitude offset (useful for LFOs)
+    /// @param float, amplitude offset
+    void setAmplitudeOffset (float _amplitudeOffset)
+    {
+        amplitudeOffset = _amplitudeOffset;
     }
 
     /// set direct current (useful for LFOs)
@@ -86,11 +93,12 @@ private:
     float sampleRate = 0.0f;  // sample rate [Hz]
     float phase = 0.0f;       // phase
     float phaseDelta = 0.0f;  // phase delta
-    // modulation parameters
-    float phaseOffset = 0.0f; // phase offset
     float amplitude = 1.0f;   // amplitude
-    float dc = 0.0f;          // direct current
-    float power = 1.0f;       // power
+    // modulation parameters
+    float phaseOffset = 0.0f;     // phase offset
+    float amplitudeOffset = 0.0f; // amplitude offset
+    float dc = 0.0f;              // direct current
+    float power = 1.0f;           // power
 };
 
 /// Triangle oscillator which has zero amplitude points at phase = 0, 0.5, 1.
