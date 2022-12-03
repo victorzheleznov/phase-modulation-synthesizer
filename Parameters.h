@@ -33,6 +33,7 @@ public:
             paramNameBase.push_back (getLetter (i));
             layout.add (std::make_unique<juce::AudioParameterChoice> ((paramIdBase + "Waveshape").c_str(), (paramNameBase + ": waveshape").c_str(), juce::StringArray{"Sine", "Triangle", "Saw", "Square"}, 0));
             layout.add (std::make_unique<juce::AudioParameterInt> ((paramIdBase + "Coarse").c_str(), (paramNameBase + ": coarse").c_str(), 1, 48, 1));
+            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Fine").c_str(), (paramNameBase + ": fine").c_str(), 0.0f, 1000.0f, 0.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Level").c_str(), (paramNameBase + ": level").c_str(), 0.0f, 1.0f, 1.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Attack").c_str(), (paramNameBase + ": attack").c_str(), 0.0f, 10.0f, 1.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Decay").c_str(), (paramNameBase + ": decay").c_str(), 0.0f, 10.0f, 1.0f));
@@ -52,8 +53,9 @@ public:
             std::string paramIdBase ("op");
             paramIdBase.push_back (getLetter (i));
             opWaveshapeParam[i] = apvts.getRawParameterValue (paramIdBase + "Waveshape");;
-            opLevelParam[i] = apvts.getRawParameterValue (paramIdBase + "Level");
             opCoarseParam[i] = apvts.getRawParameterValue (paramIdBase + "Coarse");
+            opFineParam[i] = apvts.getRawParameterValue (paramIdBase + "Fine");
+            opLevelParam[i] = apvts.getRawParameterValue (paramIdBase + "Level");
             opAttackParam[i] = apvts.getRawParameterValue (paramIdBase + "Attack");
             opDecayParam[i] = apvts.getRawParameterValue (paramIdBase + "Decay");
             opSustainParam[i] = apvts.getRawParameterValue (paramIdBase + "Sustain");

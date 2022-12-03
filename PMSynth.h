@@ -59,7 +59,7 @@ public:
         {
             ops[i].setOscWaveshape ((*param->opWaveshapeParam[i]));
             ops[i].setSampleRate (getSampleRate());
-            ops[i].setOscFrequency (freq * (*param->opCoarseParam[i]));
+            ops[i].setOscFrequency (freq * (*param->opCoarseParam[i] + *param->opFineParam[i]/1000.0f));
             ops[i].setEnvParameters (*param->opAttackParam[i], *param->opDecayParam[i], *param->opSustainParam[i], *param->opReleaseParam[i]);
             ops[i].noteOn();
         }
