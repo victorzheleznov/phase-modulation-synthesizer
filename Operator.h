@@ -28,7 +28,7 @@ public:
         osc.setWaveshape (_carOscWaveshapeId);
     }
 
-    /// set carrier oscillator frequency
+    /// set oscillator frequency
     /// @param float, frequency
     void setOscFrequency (float _frequency)
     {
@@ -40,6 +40,13 @@ public:
     void setOscPhaseOffset (float _phaseOffset)
     {
         osc.setPhaseOffset (_phaseOffset);
+    }
+
+    /// set oscillator amplitude
+    /// @param float, amplitude
+    void setOscAmplitude (float _amplitude)
+    {
+        osc.setAmplitude (_amplitude);
     }
 
     /// set attack for envelope

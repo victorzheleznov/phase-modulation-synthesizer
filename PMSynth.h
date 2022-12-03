@@ -4,7 +4,7 @@
 
 #include <JuceHeader.h>
 #include "Operator.h"
-#include "FilterMod.h"
+#include "Filter.h"
 #include "Parameters.h"
 
 // ===========================
@@ -55,14 +55,18 @@ public:
     void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound*, int /*currentPitchWheelPosition*/) override
     {
         float freq = juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber);
+        // prepare operators
         for (int i = 0; i < param->numOperators; i++)
         {
-            ops[i].setOscWaveshape ((*param->opWaveshapeParam[i]));
+            ops[i].setOscWaveshape (*param->opWaveshapeParam[i]);
             ops[i].setSampleRate (getSampleRate());
             ops[i].setOscFrequency (freq * (*param->opCoarseParam[i] + *param->opFineParam[i]/1000.0f));
+            ops[i].setOscAmplitude (*param->opLevelParam[i]);
             ops[i].setEnvParameters (*param->opAttackParam[i], *param->opDecayParam[i], *param->opSustainParam[i], *param->opReleaseParam[i]);
             ops[i].noteOn();
         }
+        // prepare filter
+        filter.startNote (param, getSampleRate());
         playing = true;
     }
     //--------------------------------------------------------------------------
@@ -77,6 +81,7 @@ public:
     {
         for (int i = 0; i < param->numOperators; i++)
             ops[i].noteOff();
+        filter.stopNote();
     }
 
     //--------------------------------------------------------------------------
@@ -96,20 +101,27 @@ public:
             // iterate through the necessary number of samples (from startSample up to startSample + numSamples)
             for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
             {
-                float outSample = 0.0f;
+                // process PM algorithm
+                float algorithmOut = 0.0f;
+                bool isOutput[4] = {false};
                 switch (param->algorithm)
                 {
                 case 1: // D -> C -> B -> A
-                    float opSampleD = ops[3].process() * (*param->opLevelParam[3]);
+                    float opSampleD = ops[3].process();
                     ops[2].setOscPhaseOffset (opSampleD);
-                    float opSampleC = ops[2].process() * (*param->opLevelParam[2]);
+                    float opSampleC = ops[2].process();
                     ops[1].setOscPhaseOffset (opSampleC);
-                    float opSampleB = ops[1].process() * (*param->opLevelParam[1]);
+                    float opSampleB = ops[1].process();
                     ops[0].setOscPhaseOffset (opSampleB);
-                    outSample = ops[0].process() * (*param->opLevelParam[0]);
+                    algorithmOut = ops[0].process();
+                    isOutput[0] = true;
                 }
 
+                // process filter
+                float filterOut = filter.process (algorithmOut);
+
                 // for each channel, write the currentSample float to the output
+                float outSample = filterOut;
                 for (int chan = 0; chan < outputBuffer.getNumChannels(); chan++)
                 {
                     // The output sample is scaled by 0.2 so that it is not too loud by default
@@ -152,8 +164,10 @@ private:
     bool playing = false;
 
     Operator ops[4];
-    //FilterMod filter;
+    Filter filter;
     juce::ADSR pitchEnv;
+    OscSwitch lfo1;
+    OscSwitch lfo2;
 
     // parameters pointer
     Parameters* param;

@@ -12,6 +12,8 @@ public:
     const int numOperators = 4; // A, B, C, D operators
     int algorithm = 1; // 1
     juce::AudioProcessorValueTreeState apvts;
+
+    // operators parameters
     std::atomic<float>* opLevelParam[4];
     std::atomic<float>* opCoarseParam[4];
     std::atomic<float>* opFineParam[4];
@@ -20,11 +22,22 @@ public:
     std::atomic<float>* opDecayParam[4];
     std::atomic<float>* opSustainParam[4];
     std::atomic<float>* opReleaseParam[4];
-
+    // filter parameters
+    std::atomic<float>* filterTypeParam;
+    std::atomic<float>* filterFrequencyParam;
+    std::atomic<float>* filterResonanceParam;
+    std::atomic<float>* filterEnvAmountParam;
+    std::atomic<float>* filterAttackParam;
+    std::atomic<float>* filterDecayParam;
+    std::atomic<float>* filterSustainParam;
+    std::atomic<float>* filterReleaseParam;
     
+    /// create parameters layout
+    /// @return, parameter layout
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
     {
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
+        // operators layout
         for (int i = 0; i < numOperators; i++)
         {
             std::string paramIdBase ("op");
@@ -40,14 +53,24 @@ public:
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Sustain").c_str(), (paramNameBase + ": sustain").c_str(), 0.0f, 1.0f, 1.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Release").c_str(), (paramNameBase + ": release").c_str(), 0.0f, 10.0f, 1.0f));
         }
-
+        // filter layout
+        layout.add (std::make_unique<juce::AudioParameterChoice> ("filterType", "Filter : type", juce::StringArray{"Low-pass", "High-pass", "Band-pass", "Notch"}, 0));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterFrequency", "Filter: frequency", 0.1f, 22000.0f, 10000.0f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterResonance", "Filter: resonance", 0.1f, 1.5f, 0.1f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterEnvAmount", "Filter: envelope amount", -1.0f, 1.0f, 0.0f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterAttack", "Filter: attack", 0.0f, 10.0f, 1.0f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterDecay", "Filter: decay", 0.0f, 10.0f, 1.0f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterSustain", "Filter: sustain", 0.0f, 1.0f, 1.0f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterRelease", "Filter: release", 0.0f, 10.0f, 1.0f));
         return layout;
     }
 
-    // constructor
+    /// constructor which initializes parameter layout and assigns parameter pointers to public class variables
+    /// @param audio processor
     Parameters (juce::AudioProcessor& audioProcessor)
         : apvts (audioProcessor, nullptr, "ParameterTree", createParameterLayout())
     {
+        // operators parameters
         for (int i = 0; i < numOperators; i++)
         {
             std::string paramIdBase ("op");
@@ -61,6 +84,15 @@ public:
             opSustainParam[i] = apvts.getRawParameterValue (paramIdBase + "Sustain");
             opReleaseParam[i] = apvts.getRawParameterValue (paramIdBase + "Release");
         }
+        // filter parameters
+        filterTypeParam = apvts.getRawParameterValue ("filterType");
+        filterFrequencyParam = apvts.getRawParameterValue ("filterFrequency");
+        filterResonanceParam = apvts.getRawParameterValue ("filterResonance");
+        filterEnvAmountParam = apvts.getRawParameterValue ("filterEnvAmount");
+        filterAttackParam = apvts.getRawParameterValue ("filterAttack");
+        filterDecayParam = apvts.getRawParameterValue ("filterDecay");
+        filterSustainParam = apvts.getRawParameterValue ("filterSustain");
+        filterReleaseParam = apvts.getRawParameterValue ("filterRelease");
     }
 private:
     char getLetter(int n)
