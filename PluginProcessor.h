@@ -10,6 +10,8 @@
 
 #include <JuceHeader.h>
 #include "PMSynth.h"
+#include "Delay.h"
+#include "Reverb.h"
 #include "Parameters.h"
 
 //==============================================================================
@@ -67,7 +69,7 @@ private:
     Parameters param;
     juce::Synthesiser synth;
     Delay delay;
-    //Reverb reverb;
+    Reverb reverb;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PMSynthAudioProcessor)
 };

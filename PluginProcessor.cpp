@@ -22,7 +22,8 @@ PMSynthAudioProcessor::PMSynthAudioProcessor()
                        ),
 #endif
     param (*this, numOperators, numLFOs),
-    delay (&param)
+    delay (&param),
+    reverb (&param)
 {
     for (int i = 0; i < 4; i++)
     {
@@ -102,6 +103,7 @@ void PMSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 {
     synth.setCurrentPlaybackSampleRate (sampleRate);
     delay.prepareToPlay (sampleRate);
+    reverb.prepareToPlay (sampleRate);
 }
 
 void PMSynthAudioProcessor::releaseResources()
@@ -142,6 +144,7 @@ void PMSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     buffer.clear();
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
     delay.processBlock (buffer, buffer.getNumSamples());
+    reverb.processBlock (buffer, buffer.getNumSamples());
 }
 
 //==============================================================================
