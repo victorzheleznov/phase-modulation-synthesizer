@@ -141,7 +141,7 @@ void PMSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     juce::ScopedNoDenormals noDenormals;
     buffer.clear();
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
-    delay.processStereo (buffer, buffer.getNumSamples());
+    delay.processBlock (buffer, buffer.getNumSamples());
 }
 
 //==============================================================================

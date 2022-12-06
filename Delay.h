@@ -24,17 +24,13 @@ public:
         allocateBuffers();
     }
 
-    void processStereo (juce::AudioSampleBuffer& outputBuffer, int numSamples)
+    void processBlock (juce::AudioSampleBuffer& outputBuffer, int numSamples)
     {
-        float* samples[2] = {outputBuffer.getWritePointer (0), outputBuffer.getWritePointer (1)};
-
-        // samples loop
-        for (int j = 0; j < numSamples; j++)
-        {
-            for (int i = 0; i < 2; i++)
-                samples[i][j] = processSample(samples[i][j], i);
-        }
-        areBuffersCleared = false;
+        int numChannels = outputBuffer.getNumChannels();
+        if (numChannels == 1)
+            processMono (outputBuffer.getWritePointer (0), numSamples);
+        else if (numChannels == 2)
+            processStereo (outputBuffer.getWritePointer (0), outputBuffer.getWritePointer (1), numSamples);
     }
 
 private:
@@ -104,6 +100,28 @@ private:
         float weight = readTimeInSamples - indexA;
         return (1.0f - weight) * buffer[channelIdx][indexA] + weight * buffer[channelIdx][indexB];
     }
+
+    void processMono (float* samples, int numSamples)
+    {
+        for (int j = 0; j < numSamples; j++)
+            samples[j] = processSample(samples[j], 0);
+    }
+
+    void processStereo (float* leftSamples, float* rightSamples, int numSamples)
+    {
+        //float* samples[2] = { leftSamples, rightSamples };
+
+        // samples loop
+        for (int j = 0; j < numSamples; j++)
+        {
+            //for (int i = 0; i < 2; i++)
+            //    samples[i][j] = processSample(samples[i][j], i);
+            leftSamples[j] = processSample(leftSamples[j], 0);
+            rightSamples[j] = processSample(rightSamples[j], 1);
+        }
+        areBuffersCleared = false;
+    }
+
 };
 
 #endif // DELAY_H
