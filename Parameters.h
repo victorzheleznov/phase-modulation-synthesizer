@@ -69,8 +69,8 @@ public:
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Sustain").c_str(), (paramNameBase + ": sustain").c_str(), 0.0f, 2.0f, 1.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Release").c_str(), (paramNameBase + ": release").c_str(), 0.0f, 10.0f, 1.0f));
             lfoDestinations.add ((paramNameBase + " level").c_str());
-            lfoDestinations.add ((paramNameBase + " phase").c_str());
         }
+        lfoDestinations.add ("Operators phase");
         // filter layout
         layout.add (std::make_unique<juce::AudioParameterChoice> ("filterType", "Filter : type", juce::StringArray{"Low-pass", "High-pass", "Band-pass", "Notch"}, 0));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("filterFrequency", "Filter: frequency", 30.0f, 18500.0f, 10000.0f));

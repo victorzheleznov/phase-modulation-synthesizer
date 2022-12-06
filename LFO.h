@@ -102,48 +102,48 @@ public:
     ///
     bool isAppliedToOpLevel (int lfoDestination, int numOperators)
     {
-        if (lfoDestination < 2 * numOperators && lfoDestination % 2 == 0)
+        if (lfoDestination < numOperators)
             return true;
         else
             return false;
     }
 
-    bool isAppliedToOpPhase (int lfoDestination, int numOperators)
+    bool isAppliedToOpsPhase (int lfoDestination, int numOperators)
     {
-        if (lfoDestination < 2 * numOperators && lfoDestination % 2 == 1)
+        if (lfoDestination == numOperators)
             return true;
         else
             return false;
     }
 
-    bool isAppliedToFilterFreq (int lfoDestination)
+    bool isAppliedToFilterFreq (int lfoDestination, int numOperators)
     {
-        if (lfoDestination == 8)
+        if (lfoDestination == numOperators + 1)
             return true;
         else
             return false;
     }
 
-    bool isAppliedToFilterRes (int lfoDestination)
+    bool isAppliedToFilterRes (int lfoDestination, int numOperators)
     {
-        if (lfoDestination == 9)
+        if (lfoDestination == numOperators + 2)
             return true;
         else
             return false;
     }
 
-    bool isAppliedToLFORate (int lfoDestination, int numLFOs)
+    bool isAppliedToLFORate (int lfoDestination, int numOperators, int numLFOs)
     {
-        int idxStart = 10;
+        int idxStart = numOperators + 3;
         if (lfoDestination >= idxStart && lfoDestination < idxStart + 2 * (numLFOs-1) && (lfoDestination - idxStart) % 2 == 0)
             return true;
         else
             return false;
     }
 
-    bool isAppliedToLFOAmount (int lfoDestination, int numLFOs)
+    bool isAppliedToLFOAmount (int lfoDestination, int numOperators, int numLFOs)
     {
-        int idxStart = 10;
+        int idxStart = numOperators + 3;
         if (lfoDestination >= idxStart && lfoDestination < idxStart + 2 * (numLFOs - 1) && (lfoDestination - idxStart) % 2 == 1)
             return true;
         else

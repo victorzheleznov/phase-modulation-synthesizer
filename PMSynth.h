@@ -109,16 +109,19 @@ public:
                     int lfoDestination = *param->lfoDestinationParam[i];
                     float lfoSample = lfo[i].process();
                     if (lfo[i].isAppliedToOpLevel (lfoDestination, param->numOperators))
-                        ops[lfoDestination/2].setOscAmplitudeOffset (lfoSample);
-                    if (lfo[i].isAppliedToOpPhase (lfoDestination, param->numOperators))
-                        ops[(lfoDestination-1)/2].setOscPhaseOffset (lfoSample);
-                    if (lfo[i].isAppliedToFilterFreq (lfoDestination))
+                        ops[lfoDestination].setOscAmplitudeOffset (lfoSample);
+                    if (lfo[i].isAppliedToOpsPhase (lfoDestination, param->numOperators))
+                    {
+                        for (int j = 0; j < param->numOperators; j++)
+                            ops[j].setOscPhaseOffset (lfoSample);
+                    }
+                    if (lfo[i].isAppliedToFilterFreq (lfoDestination, param->numOperators))
                         filter.setFrequencyOffset (lfoSample);
-                    if (lfo[i].isAppliedToFilterRes (lfoDestination))
+                    if (lfo[i].isAppliedToFilterRes (lfoDestination, param->numOperators))
                         filter.setResonanceOffset (lfoSample);
-                    if (lfo[i].isAppliedToLFORate (lfoDestination, param->numLFOs))
+                    if (lfo[i].isAppliedToLFORate (lfoDestination, param->numOperators, param->numLFOs))
                         lfo[i-1].setLFOFrequencyOffset (lfoSample);
-                    if (lfo[i].isAppliedToLFOAmount (lfoDestination, param->numLFOs))
+                    if (lfo[i].isAppliedToLFOAmount (lfoDestination, param->numOperators, param->numLFOs))
                         lfo[i-1].setLFOAmountOffset (lfoSample);
                 }
                 
