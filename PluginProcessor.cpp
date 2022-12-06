@@ -21,13 +21,12 @@ PMSynthAudioProcessor::PMSynthAudioProcessor()
                      #endif
                        ),
 #endif
-    param (*this, numOperators, numLFOs)
+    param (*this, numOperators, numLFOs),
+    delay (&param)
 {
     for (int i = 0; i < 4; i++)
     {
         synth.addVoice (new PMSynthVoice (&param));
-        //PMSynthVoice* voicePtr = dynamic_cast<PMSynthVoice*> (synth.getVoice (i));
-        //voicePtr->setParamPtr (&param);
     }
     synth.addSound (new PMSynthSound());
 }
@@ -102,6 +101,7 @@ void PMSynthAudioProcessor::changeProgramName (int index, const juce::String& ne
 void PMSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     synth.setCurrentPlaybackSampleRate (sampleRate);
+    delay.prepareToPlay (sampleRate);
 }
 
 void PMSynthAudioProcessor::releaseResources()
@@ -141,6 +141,7 @@ void PMSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     juce::ScopedNoDenormals noDenormals;
     buffer.clear();
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
+    delay.processStereo (buffer, buffer.getNumSamples());
 }
 
 //==============================================================================

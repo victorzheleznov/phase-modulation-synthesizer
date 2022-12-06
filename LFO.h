@@ -88,7 +88,7 @@ public:
         (*this).setSampleRate (_sampleRate);
         (*this).setLFOFrequency (*_param->lfoRateParam[_idx]);
         (*this).setLFOAmount (*_param->lfoAmountParam[_idx]);
-        if (*_param->lfoRetrigger[_idx] == true)
+        if (*_param->lfoRetriggerParam[_idx] == true)
         {
             phase = 0.0f;
             lfo.setPhase (0.0f);

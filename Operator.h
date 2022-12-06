@@ -92,7 +92,7 @@ public:
         (*this).setOscFrequency (_freq * (*_param->opCoarseParam[_idx] + *_param->opFineParam[_idx] / 1000.0f));
         (*this).setOscAmplitude (*_param->opLevelParam[_idx]);
         (*this).setEnvParameters (*_param->opAttackParam[_idx], *_param->opDecayParam[_idx], *_param->opSustainParam[_idx], *_param->opReleaseParam[_idx]);
-        (*this).setPitchEnvParameters (*_param->pitchEnvInitialLevel, *_param->pitchEnvDecay);
+        (*this).setPitchEnvParameters (*_param->pitchEnvInitialLevelParam, *_param->pitchEnvDecayParam);
         env.noteOn();
         pitchEnv.noteOn();
     }

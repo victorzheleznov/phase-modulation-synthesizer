@@ -40,10 +40,15 @@ public:
     std::atomic<float>* lfoWaveshapeParam[2];
     std::atomic<float>* lfoRateParam[2];
     std::atomic<float>* lfoAmountParam[2];
-    std::atomic<float>* lfoRetrigger[2];
-    // Pitch envelope parameters
-    std::atomic<float>* pitchEnvInitialLevel;
-    std::atomic<float>* pitchEnvDecay;
+    std::atomic<float>* lfoRetriggerParam[2];
+    // pitch envelope parameters
+    std::atomic<float>* pitchEnvInitialLevelParam;
+    std::atomic<float>* pitchEnvDecayParam;
+    // delay parameters
+    std::atomic<float>* delayDryWetParam;
+    std::atomic<float>* delayTimeParam[2];
+    std::atomic<float>* delayTimeLinkParam;
+    std::atomic<float>* delayFeedbackParam;
     
     /// create parameters layout
     /// @return, parameter layout
@@ -98,8 +103,14 @@ public:
             lfoDestinations.add ((paramNameBase + " amount").c_str());
         }
         // pitch envelope
-        layout.add (std::make_unique<juce::AudioParameterInt> ("pitchEnvInitialLevel", "Pitch env:initial level", -48, 48, 0));
+        layout.add (std::make_unique<juce::AudioParameterInt> ("pitchEnvInitialLevel", "Pitch env: initial level", -48, 48, 0));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("pitchEnvDecay", "Pitch env: decay", 0.0f, 10.0f, 1.0f));
+        // delay
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("delayDryWet", "Delay: dry/wet", 0.0f, 1.0f, 0.0f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("delayTimeLeft", "Delay: left time", 0.1f, 5.0f, 0.1f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("delayTimeRight", "Delay: right time", 0.1f, 5.0f, 0.1f));
+        layout.add (std::make_unique<juce::AudioParameterBool> ("delayTimeLink", "Delay: link stereo", true));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("delayFeedback", "Delay: feedback", 0.0f, 1.0f, 0.0f));
         return layout;
     }
 
@@ -143,11 +154,17 @@ public:
             lfoWaveshapeParam[i] = apvts.getRawParameterValue (paramIdBase + "Waveshape");
             lfoRateParam[i] = apvts.getRawParameterValue (paramIdBase + "Rate");
             lfoAmountParam[i] = apvts.getRawParameterValue (paramIdBase + "Amount");
-            lfoRetrigger[i] = apvts.getRawParameterValue (paramIdBase + "Retrigger");
+            lfoRetriggerParam[i] = apvts.getRawParameterValue (paramIdBase + "Retrigger");
         }
         // pitch envelope
-        pitchEnvInitialLevel = apvts.getRawParameterValue ("pitchEnvInitialLevel");
-        pitchEnvDecay = apvts.getRawParameterValue ("pitchEnvDecay");
+        pitchEnvInitialLevelParam = apvts.getRawParameterValue ("pitchEnvInitialLevel");
+        pitchEnvDecayParam = apvts.getRawParameterValue ("pitchEnvDecay");
+        // delay
+        delayDryWetParam = apvts.getRawParameterValue ("delayDryWet");
+        delayTimeParam[0] = apvts.getRawParameterValue ("delayTimeLeft");
+        delayTimeParam[1] = apvts.getRawParameterValue ("delayTimeRight");
+        delayTimeLinkParam = apvts.getRawParameterValue ("delayTimeLink");
+        delayFeedbackParam = apvts.getRawParameterValue ("delayFeedback");
     }
 private:
     char getLetter(int n)

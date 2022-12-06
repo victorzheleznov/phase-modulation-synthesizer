@@ -6,6 +6,8 @@
 #include "Operator.h"
 #include "Filter.h"
 #include "LFO.h"
+#include "Delay.h"
+#include "Reverb.h"
 #include "Parameters.h"
 
 // ===========================
@@ -42,7 +44,6 @@ public:
         filter (_param->apvts.getParameterRange("filterFrequency"), _param->apvts.getParameterRange("filterResonance")),
         lfo {_param->apvts.getParameterRange("lfo1Rate"), _param->apvts.getParameterRange("lfo2Rate")}
     {
-        juce::NormalisableRange<float> test = param->apvts.getParameterRange("filterFrequency");
     }
 
     //--------------------------------------------------------------------------
