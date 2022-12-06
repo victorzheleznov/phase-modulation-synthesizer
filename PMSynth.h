@@ -109,19 +109,25 @@ public:
                 {
                     int lfoDestination = *param->lfoDestinationParam[i];
                     float lfoSample = lfo[i].process();
+                    // operators level modulation
                     if (lfo[i].isAppliedToOpLevel (lfoDestination, param->numOperators))
                         ops[lfoDestination].setOscAmplitudeOffset (lfoSample);
+                    // operators phase modulation
                     if (lfo[i].isAppliedToOpsPhase (lfoDestination, param->numOperators))
                     {
                         for (int j = 0; j < param->numOperators; j++)
                             ops[j].setOscPhaseOffset (lfoSample);
                     }
+                    // filter frequency modulation
                     if (lfo[i].isAppliedToFilterFreq (lfoDestination, param->numOperators))
                         filter.setFrequencyOffset (lfoSample);
+                    // filter resonance modulation
                     if (lfo[i].isAppliedToFilterRes (lfoDestination, param->numOperators))
                         filter.setResonanceOffset (lfoSample);
+                    // previous LFO rate modulation
                     if (lfo[i].isAppliedToLFORate (lfoDestination, param->numOperators, param->numLFOs))
                         lfo[i-1].setLFOFrequencyOffset (lfoSample);
+                    // previous LFO amount modulation
                     if (lfo[i].isAppliedToLFOAmount (lfoDestination, param->numOperators, param->numLFOs))
                         lfo[i-1].setLFOAmountOffset (lfoSample);
                 }
@@ -129,19 +135,146 @@ public:
                 // process PM algorithm
                 float algorithmOut = 0.0f;
                 bool isOutput[4] = {false};
+                float opSampleA, opSampleB, opSampleC, opSampleD;
                 switch ((int) *param->algorithm)
                 {
                 case 1: // D -> C -> B -> A
                     // specify output operators
                     isOutput[0] = true;
                     // process algorithm
-                    float opSampleD = ops[3].process();
+                    opSampleD = ops[3].process();
                     ops[2].setOscPhaseOffset (opSampleD);
-                    float opSampleC = ops[2].process();
+                    opSampleC = ops[2].process();
                     ops[1].setOscPhaseOffset (opSampleC);
-                    float opSampleB = ops[1].process();
+                    opSampleB = ops[1].process();
                     ops[0].setOscPhaseOffset (opSampleB);
                     algorithmOut = ops[0].process();
+                    break;
+                case 2:
+                    // specify output operators
+                    isOutput[0] = true;
+                    // process algorithm
+                    opSampleD = ops[3].process();
+                    opSampleC = ops[2].process();
+                    ops[1].setOscPhaseOffset ((opSampleC + opSampleD) / 2);
+                    opSampleB = ops[1].process();
+                    ops[0].setOscPhaseOffset (opSampleB);
+                    algorithmOut = ops[0].process();
+                    break;
+                case 3:
+                    // specify output operators
+                    isOutput[0] = true;
+                    // process algorithm
+                    opSampleD = ops[3].process();
+                    opSampleC = ops[2].process();
+                    ops[1].setOscPhaseOffset (opSampleC);
+                    opSampleB = ops[1].process();
+                    ops[0].setOscPhaseOffset ((opSampleB + opSampleD) / 2);
+                    algorithmOut = ops[0].process();
+                    break;
+                case 4:
+                    // specify output operators
+                    isOutput[0] = true;
+                    // process algorithm
+                    opSampleD = ops[3].process();
+                    ops[2].setOscPhaseOffset (opSampleD);
+                    opSampleC = ops[2].process();
+                    ops[1].setOscPhaseOffset (opSampleD);
+                    opSampleB = ops[1].process();
+                    ops[0].setOscPhaseOffset ((opSampleB + opSampleC) / 2);
+                    algorithmOut = ops[0].process();
+                    break;
+                case 5:
+                    // specify output operators
+                    isOutput[0] = true;
+                    isOutput[1] = true;
+                    // process algorithm
+                    opSampleD = ops[3].process();
+                    ops[2].setOscPhaseOffset (opSampleD);
+                    opSampleC = ops[2].process();
+                    ops[1].setOscPhaseOffset (opSampleC);
+                    opSampleB = ops[1].process();
+                    ops[0].setOscPhaseOffset (opSampleC);
+                    opSampleA = ops[0].process();
+                    algorithmOut = (opSampleA + opSampleB) / 2;
+                    break;
+                case 6:
+                    // specify output operators
+                    isOutput[0] = true;
+                    isOutput[1] = true;
+                    // process algorithm
+                    opSampleD = ops[3].process();
+                    ops[2].setOscPhaseOffset (opSampleD);
+                    opSampleC = ops[2].process();
+                    ops[1].setOscPhaseOffset (opSampleC);
+                    opSampleB = ops[1].process();
+                    opSampleA = ops[0].process();
+                    algorithmOut = (opSampleA + opSampleB) / 2;
+                    break;
+                case 7:
+                    // specify output operators
+                    isOutput[0] = true;
+                    // process algorithm
+                    opSampleD = ops[3].process();
+                    opSampleC = ops[2].process();
+                    opSampleB = ops[1].process();
+                    ops[0].setOscPhaseOffset ((opSampleB + opSampleC + opSampleD) / 3);
+                    algorithmOut = ops[0].process();
+                    break;
+                case 8:
+                    // specify output operators
+                    isOutput[0] = true;
+                    isOutput[2] = true;
+                    // process algorithm
+                    opSampleD = ops[3].process();
+                    ops[2].setOscPhaseOffset (opSampleD);
+                    opSampleC = ops[2].process();
+                    opSampleB = ops[1].process();
+                    ops[0].setOscPhaseOffset (opSampleB);
+                    opSampleA = ops[0].process();
+                    algorithmOut = 0.5 * (opSampleA + opSampleC);
+                    break;
+                case 9:
+                    // specify output operators
+                    isOutput[0] = true;
+                    isOutput[1] = true;
+                    isOutput[2] = true;
+                    // process algorithm
+                    opSampleD = ops[3].process();
+                    ops[2].setOscPhaseOffset (opSampleD);
+                    opSampleC = ops[2].process();
+                    ops[1].setOscPhaseOffset (opSampleD);
+                    opSampleB = ops[1].process();
+                    ops[0].setOscPhaseOffset (opSampleD);
+                    opSampleA = ops[0].process();
+                    algorithmOut = (opSampleA + opSampleB + opSampleC) / 3;
+                    break;
+                case 10:
+                    // specify output operators
+                    isOutput[0] = true;
+                    isOutput[1] = true;
+                    isOutput[2] = true;
+                    // process algorithm
+                    opSampleD = ops[3].process();
+                    ops[2].setOscPhaseOffset (opSampleD);
+                    opSampleC = ops[2].process();
+                    opSampleB = ops[1].process();
+                    opSampleA = ops[0].process();
+                    algorithmOut = (opSampleA + opSampleB + opSampleC) / 3;
+                    break;
+                case 11:
+                    // specify output operators
+                    isOutput[0] = true;
+                    isOutput[1] = true;
+                    isOutput[2] = true;
+                    isOutput[3] = true;
+                    // process algorithm
+                    opSampleD = ops[3].process();
+                    opSampleC = ops[2].process();
+                    opSampleB = ops[1].process();
+                    opSampleA = ops[0].process();
+                    algorithmOut = (opSampleA + opSampleB + opSampleC + opSampleD) / 4;
+                    break;
                 }
 
                 // process filter
