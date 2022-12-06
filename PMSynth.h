@@ -128,6 +128,9 @@ public:
                 switch ((int) *param->algorithm)
                 {
                 case 1: // D -> C -> B -> A
+                    // specify output operators
+                    isOutput[0] = true;
+                    // process algorithm
                     float opSampleD = ops[3].process();
                     ops[2].setOscPhaseOffset (opSampleD);
                     float opSampleC = ops[2].process();
@@ -135,7 +138,6 @@ public:
                     float opSampleB = ops[1].process();
                     ops[0].setOscPhaseOffset (opSampleB);
                     algorithmOut = ops[0].process();
-                    isOutput[0] = true;
                 }
 
                 // process filter
@@ -186,7 +188,6 @@ private:
 
     Operator ops[4];
     Filter filter;
-    juce::ADSR pitchEnv;
     LFO lfo[2];
 
     // parameters pointer

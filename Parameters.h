@@ -41,6 +41,9 @@ public:
     std::atomic<float>* lfoRateParam[2];
     std::atomic<float>* lfoAmountParam[2];
     std::atomic<float>* lfoRetrigger[2];
+    // Pitch envelope parameters
+    std::atomic<float>* pitchEnvInitialLevel;
+    std::atomic<float>* pitchEnvDecay;
     
     /// create parameters layout
     /// @return, parameter layout
@@ -63,7 +66,7 @@ public:
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Level").c_str(), (paramNameBase + ": level").c_str(), 0.0f, 1.0f, 1.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Attack").c_str(), (paramNameBase + ": attack").c_str(), 0.0f, 10.0f, 1.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Decay").c_str(), (paramNameBase + ": decay").c_str(), 0.0f, 10.0f, 1.0f));
-            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Sustain").c_str(), (paramNameBase + ": sustain").c_str(), 0.0f, 1.0f, 1.0f));
+            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Sustain").c_str(), (paramNameBase + ": sustain").c_str(), 0.0f, 2.0f, 1.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Release").c_str(), (paramNameBase + ": release").c_str(), 0.0f, 10.0f, 1.0f));
             lfoDestinations.add ((paramNameBase + " level").c_str());
             lfoDestinations.add ((paramNameBase + " phase").c_str());
@@ -94,6 +97,9 @@ public:
             lfoDestinations.add ((paramNameBase + " rate").c_str());
             lfoDestinations.add ((paramNameBase + " amount").c_str());
         }
+        // pitch envelope
+        layout.add (std::make_unique<juce::AudioParameterInt> ("pitchEnvInitialLevel", "Pitch env:initial level", -48, 48, 0));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("pitchEnvDecay", "Pitch env: decay", 0.0f, 10.0f, 1.0f));
         return layout;
     }
 
@@ -139,6 +145,9 @@ public:
             lfoAmountParam[i] = apvts.getRawParameterValue (paramIdBase + "Amount");
             lfoRetrigger[i] = apvts.getRawParameterValue (paramIdBase + "Retrigger");
         }
+        // pitch envelope
+        pitchEnvInitialLevel = apvts.getRawParameterValue ("pitchEnvInitialLevel");
+        pitchEnvDecay = apvts.getRawParameterValue ("pitchEnvDecay");
     }
 private:
     char getLetter(int n)
