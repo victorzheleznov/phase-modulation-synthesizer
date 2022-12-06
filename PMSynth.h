@@ -5,6 +5,7 @@
 #include <JuceHeader.h>
 #include "Operator.h"
 #include "Filter.h"
+#include "LFO.h"
 #include "Parameters.h"
 
 // ===========================
@@ -36,11 +37,12 @@ public:
 class PMSynthVoice : public juce::SynthesiserVoice
 {
 public:
-    PMSynthVoice() {}
-
-    void setParamPtr(Parameters* _param)
+    PMSynthVoice(Parameters* _param) :
+        param (_param),
+        filter (_param->apvts.getParameterRange("filterFrequency"), _param->apvts.getParameterRange("filterResonance")),
+        lfo {_param->apvts.getParameterRange("lfo1Rate"), _param->apvts.getParameterRange("lfo2Rate")}
     {
-        param = _param;
+        juce::NormalisableRange<float> test = param->apvts.getParameterRange("filterFrequency");
     }
 
     //--------------------------------------------------------------------------
@@ -58,15 +60,15 @@ public:
         // prepare operators
         for (int i = 0; i < param->numOperators; i++)
         {
-            ops[i].setOscWaveshape (*param->opWaveshapeParam[i]);
-            ops[i].setSampleRate (getSampleRate());
-            ops[i].setOscFrequency (freq * (*param->opCoarseParam[i] + *param->opFineParam[i]/1000.0f));
-            ops[i].setOscAmplitude (*param->opLevelParam[i]);
-            ops[i].setEnvParameters (*param->opAttackParam[i], *param->opDecayParam[i], *param->opSustainParam[i], *param->opReleaseParam[i]);
-            ops[i].noteOn();
+            ops[i].startNote (param, i, freq, getSampleRate());
         }
         // prepare filter
         filter.startNote (param, getSampleRate());
+        // prepare LFOs
+        for (int i = 0; i < param->numLFOs; i++)
+        {
+            lfo[i].startNote (param, i, getSampleRate());
+        }
         playing = true;
     }
     //--------------------------------------------------------------------------
@@ -80,7 +82,7 @@ public:
     void stopNote(float /*velocity*/, bool allowTailOff) override
     {
         for (int i = 0; i < param->numOperators; i++)
-            ops[i].noteOff();
+            ops[i].stopNote();
         filter.stopNote();
     }
 
@@ -101,10 +103,29 @@ public:
             // iterate through the necessary number of samples (from startSample up to startSample + numSamples)
             for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
             {
+                // apply LFOs
+                for (int i = 0; i < param->numLFOs; i++)
+                {
+                    int lfoDestination = *param->lfoDestinationParam[i];
+                    float lfoSample = lfo[i].process();
+                    if (lfo[i].isAppliedToOpLevel (lfoDestination, param->numOperators))
+                        ops[lfoDestination/2].setOscAmplitudeOffset (lfoSample);
+                    if (lfo[i].isAppliedToOpPhase (lfoDestination, param->numOperators))
+                        ops[(lfoDestination-1)/2].setOscPhaseOffset (lfoSample);
+                    if (lfo[i].isAppliedToFilterFreq (lfoDestination))
+                        filter.setFrequencyOffset (lfoSample);
+                    if (lfo[i].isAppliedToFilterRes (lfoDestination))
+                        filter.setResonanceOffset (lfoSample);
+                    if (lfo[i].isAppliedToLFORate (lfoDestination, param->numLFOs))
+                        lfo[i-1].setLFOFrequencyOffset (lfoSample);
+                    if (lfo[i].isAppliedToLFOAmount (lfoDestination, param->numLFOs))
+                        lfo[i-1].setLFOAmountOffset (lfoSample);
+                }
+                
                 // process PM algorithm
                 float algorithmOut = 0.0f;
                 bool isOutput[4] = {false};
-                switch (param->algorithm)
+                switch ((int) *param->algorithm)
                 {
                 case 1: // D -> C -> B -> A
                     float opSampleD = ops[3].process();
@@ -125,7 +146,7 @@ public:
                 for (int chan = 0; chan < outputBuffer.getNumChannels(); chan++)
                 {
                     // The output sample is scaled by 0.2 so that it is not too loud by default
-                    outputBuffer.addSample (chan, sampleIndex, outSample);
+                    outputBuffer.addSample (chan, sampleIndex, 0.2 * outSample);
                 }
 
                 bool isActive = false;
@@ -135,8 +156,8 @@ public:
                 {
                     clearCurrentNote();
                     playing = false;
-                    for (int i = 0; i < param->numOperators; i++)
-                        ops[i].resetEnv();
+                    //for (int i = 0; i < param->numOperators; i++)
+                    //    ops[i].resetEnv();
                 }
             }
         }
@@ -166,8 +187,7 @@ private:
     Operator ops[4];
     Filter filter;
     juce::ADSR pitchEnv;
-    OscSwitch lfo1;
-    OscSwitch lfo2;
+    LFO lfo[2];
 
     // parameters pointer
     Parameters* param;

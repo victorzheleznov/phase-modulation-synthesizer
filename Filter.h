@@ -12,9 +12,12 @@ class Filter
 {
 public:
     /// constructor that resets filter instance
-    Filter()
+    Filter(juce::NormalisableRange<float> frequencyRange, juce::NormalisableRange<float> resonanceRange)
+        : minFrequency(frequencyRange.start), maxFrequency(frequencyRange.end), minResonance(resonanceRange.start), maxResonance(resonanceRange.end)
     {
         filter.reset();
+        frequencyMaxOffset = 0.5 * (maxFrequency - minFrequency); // max frequency offset for envelope and LFO
+        resonanceMaxOffset = 0.5 * (maxResonance - minResonance); // max resonance offset for LFO
     }
 
     /// process input sample
@@ -24,7 +27,23 @@ public:
     {
         jassert (sampleRate > 0.0f); // check if sample rate is set (the default value on initialization is 0)
         float envVal = env.getNextSample(); // SHOULD BE LOGARITHMIC CHANGE!!!!!!!!!!!!!!!!!!!!!!!!!
-        filter.setCoefficients (makeFilterCoefficients (sampleRate, frequency + envAmount * envVal * frequencyShift, resonance));
+        // calculate frequency with modulations
+        float freq = frequency + envAmount * envVal * frequencyMaxOffset + frequencyOffset;
+        // check bounds
+        if (freq > maxFrequency)
+            freq = maxFrequency;
+        if (freq < minFrequency)
+            freq = minFrequency;
+        // calculate resonance with modulations
+        float res = resonance + resonanceOffset;
+        // check resonance bounds
+        if (res < minResonance)
+            res = minResonance;
+        if (res > maxResonance)
+            res = maxResonance;
+        filter.setCoefficients (makeFilterCoefficients (sampleRate, freq, res));
+        // reset modulations
+        resetModulations();
         return filter.processSingleSampleRaw (_inSample);
     }
 
@@ -86,7 +105,7 @@ public:
         envAmount = _envAmount;
     }
 
-    /// start the attack phase of the envelope
+    /// start the attack phase of the envelope and update parameters
     void startNote (Parameters* param, float _sampleRate)
     {
         filter.reset();
@@ -100,11 +119,6 @@ public:
         (*this).setEnvAmount (*param->filterEnvAmountParam);
 
         env.noteOn();
-
-        if (envAmount >= 0.0f)
-            frequencyShift = 0.5 * sampleRate - frequency;
-        else
-            frequencyShift = frequency - lowestFrequency;
     }
 
     /// start the release phase of the envelope
@@ -113,16 +127,39 @@ public:
         env.noteOff();
     }
 
+    /// set frequency offset
+    /// @param float, frequency offset amount (from -1 to 1)
+    void setFrequencyOffset (float _frequencyOffsetAmount)
+    {
+        frequencyOffset += _frequencyOffsetAmount * frequencyMaxOffset;
+    }
+
+    /// set resonance offset
+    /// @param float, resonance offset amount (from -1 to 1)
+    void setResonanceOffset (float _resonanceOffsetAmount)
+    {
+        resonanceOffset += _resonanceOffsetAmount * resonanceMaxOffset;
+    }
 private:
     float sampleRate = 0.0f;                                                                         // sample rate [Hz]
+    // base members
     juce::IIRFilter filter;                                                                          // filter instance
     juce::IIRCoefficients (*makeFilterCoefficients) (double sampleRate, double frequency, double Q); // pointer to a function with calculates filter coefficiens using specified sample rate, cutoff frequency and resonance
+    juce::ADSR env;                                                                                  // envelope
+    // filter parameters
     float frequency;
     float resonance;
-    juce::ADSR env;
-    int frequencyShift = 9;
-    float lowestFrequency = 0.1f;
-    float envAmount;
+    float envAmount = 0.0f;
+    // modulation parameters
+    float frequencyOffset = 0.0f;
+    float resonanceOffset = 0.0f;
+    // parameters bounds
+    const float minFrequency;
+    const float maxFrequency;
+    const float minResonance;
+    const float maxResonance;
+    float frequencyMaxOffset;
+    float resonanceMaxOffset;
 
     /// set filter coefficients function
     /// @param juce::IIRCoefficients (*_func) (double, double, double), pointer to a function,
@@ -130,6 +167,13 @@ private:
     void setFilterCoefficientsFunction (juce::IIRCoefficients (*_func) (double, double, double))
     {
         makeFilterCoefficients = _func;
+    }
+
+    /// reset external filter modulations (frequency and resonance modulations)
+    void resetModulations()
+    {
+        frequencyOffset = 0.0f;
+        resonanceOffset = 0.0f;
     }
 };
 

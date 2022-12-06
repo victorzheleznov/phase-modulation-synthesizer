@@ -86,6 +86,16 @@ public:
         jassert (_power >= 1.0f);     // negative values excluded so we don't have division by zero; for zero value we have no oscillation
         power = _power;
     }
+
+    void setPhase (float _phase)
+    {
+        phase = _phase;
+    }
+
+    float getPhase()
+    {
+        return phase;
+    }
     
 private:
     // base parameters

@@ -11,7 +11,9 @@ class OscSwitch
 public:
     float process()
     {
-        return osc->process();
+        float oscSample = osc->process();
+        phase = osc->getPhase();
+        return oscSample;
     }
 
     /// set oscillator waveshape
@@ -51,6 +53,7 @@ public:
             osc->setPhaseOffset (phaseOffset);
             osc->setDC (dc);
             osc->setPower (power);
+            osc->setPhase (phase);
         }
     }
 
@@ -113,6 +116,15 @@ public:
         osc->setPower (_power);
     }
 
+    float getPhase()
+    {
+        return phase;
+    }
+
+    void setPhase (float _phase)
+    {
+        osc->setPhase (_phase);
+    }
 private:
     std::unique_ptr<Phasor> osc = nullptr; // carrier oscillator
 
@@ -124,6 +136,7 @@ private:
     float amplitudeOffset = 0.0f; // amplitude offset
     float dc = 0.0f;              // direct current
     float power = 1.0f;           // power
+    float phase = 0.0f;
 };
 
 #endif // OSC_SWITCH_H

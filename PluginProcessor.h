@@ -59,6 +59,11 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 private:
+    // define constants
+    const int numVoices = 8;
+    const int numOperators = 4; // A, B, C, D operators
+    const int numLFOs = 2;
+
     Parameters param;
     juce::Synthesiser synth;
     //==============================================================================

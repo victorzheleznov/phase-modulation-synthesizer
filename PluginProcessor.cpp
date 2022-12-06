@@ -21,13 +21,13 @@ PMSynthAudioProcessor::PMSynthAudioProcessor()
                      #endif
                        ),
 #endif
-    param (*this)
+    param (*this, numOperators, numLFOs)
 {
     for (int i = 0; i < 4; i++)
     {
-        synth.addVoice (new PMSynthVoice());
-        PMSynthVoice* voicePtr = dynamic_cast<PMSynthVoice*> (synth.getVoice (i));
-        voicePtr->setParamPtr (&param);
+        synth.addVoice (new PMSynthVoice (&param));
+        //PMSynthVoice* voicePtr = dynamic_cast<PMSynthVoice*> (synth.getVoice (i));
+        //voicePtr->setParamPtr (&param);
     }
     synth.addSound (new PMSynthSound());
 }
