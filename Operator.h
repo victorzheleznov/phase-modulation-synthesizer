@@ -83,14 +83,14 @@ public:
     }
 
     /// start the attack phase of the envelope
-    void startNote (Parameters* _param, int _idx, float _freq, float _sampleRate)
+    void startNote (Parameters* _param, int _idx, float _freq, float _velocity, float _sampleRate)
     {
         env.reset();
         pitchEnv.reset();
         (*this).setOscWaveshape (*_param->opWaveshapeParam[_idx]);
         (*this).setSampleRate (_sampleRate);
         (*this).setOscFrequency (_freq * (*_param->opCoarseParam[_idx] + *_param->opFineParam[_idx] / 1000.0f));
-        (*this).setOscAmplitude (*_param->opLevelParam[_idx]);
+        (*this).setOscAmplitude (*_param->opLevelParam[_idx] * _velocity);
         (*this).setEnvParameters (*_param->opAttackParam[_idx], *_param->opDecayParam[_idx], *_param->opSustainParam[_idx], *_param->opReleaseParam[_idx]);
         (*this).setPitchEnvParameters (*_param->pitchEnvInitialLevelParam, *_param->pitchEnvDecayParam);
         env.noteOn();

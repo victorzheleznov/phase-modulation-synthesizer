@@ -61,7 +61,7 @@ public:
         // prepare operators
         for (int i = 0; i < param->numOperators; i++)
         {
-            ops[i].startNote (param, i, freq, getSampleRate());
+            ops[i].startNote (param, i, freq, velocity, getSampleRate());
         }
         // prepare filter
         filter.startNote (param, getSampleRate());
@@ -290,13 +290,14 @@ public:
 
                 bool isActive = false;
                 for (int i = 0; i < param->numOperators; i++)
-                    isActive = isActive || ops[i].isEnvActive();
+                {   
+                    if (isOutput[i] == true)
+                        isActive = isActive || ops[i].isEnvActive();
+                }
                 if (isActive == false)
                 {
                     clearCurrentNote();
                     playing = false;
-                    //for (int i = 0; i < param->numOperators; i++)
-                    //    ops[i].resetEnv();
                 }
             }
         }
