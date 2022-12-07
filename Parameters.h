@@ -67,7 +67,8 @@ public:
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
         juce::StringArray lfoDestinations;
         // algorithm
-        layout.add (std::make_unique<juce::AudioParameterInt> ("algorithm", "PM algorithm", 1, 11, 1));
+        //layout.add (std::make_unique<juce::AudioParameterInt> ("algorithm", "PM algorithm", 1, 11, 1));
+        layout.add (std::make_unique<juce::AudioParameterChoice> ("algorithm", "PM algorithm", juce::StringArray{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"}, 0));
         // operators layout
         for (int i = 0; i < numOperators; i++)
         {

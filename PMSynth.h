@@ -140,7 +140,7 @@ public:
                 float opSampleA, opSampleB, opSampleC, opSampleD;
                 switch ((int) *param->algorithm)
                 {
-                case 1: // D -> C -> B -> A
+                case 0: // D -> C -> B -> A
                     // specify output operators
                     isOutput[0] = true;
                     // process algorithm
@@ -152,7 +152,7 @@ public:
                     ops[0].setOscPhaseOffset (opSampleB);
                     algorithmOut = ops[0].process();
                     break;
-                case 2:
+                case 1:
                     // specify output operators
                     isOutput[0] = true;
                     // process algorithm
@@ -163,7 +163,7 @@ public:
                     ops[0].setOscPhaseOffset (opSampleB);
                     algorithmOut = ops[0].process();
                     break;
-                case 3:
+                case 2:
                     // specify output operators
                     isOutput[0] = true;
                     // process algorithm
@@ -174,7 +174,7 @@ public:
                     ops[0].setOscPhaseOffset ((opSampleB + opSampleD) / 2);
                     algorithmOut = ops[0].process();
                     break;
-                case 4:
+                case 3:
                     // specify output operators
                     isOutput[0] = true;
                     // process algorithm
@@ -186,7 +186,7 @@ public:
                     ops[0].setOscPhaseOffset ((opSampleB + opSampleC) / 2);
                     algorithmOut = ops[0].process();
                     break;
-                case 5:
+                case 4:
                     // specify output operators
                     isOutput[0] = true;
                     isOutput[1] = true;
@@ -200,7 +200,7 @@ public:
                     opSampleA = ops[0].process();
                     algorithmOut = (opSampleA + opSampleB) / 2;
                     break;
-                case 6:
+                case 5:
                     // specify output operators
                     isOutput[0] = true;
                     isOutput[1] = true;
@@ -213,7 +213,7 @@ public:
                     opSampleA = ops[0].process();
                     algorithmOut = (opSampleA + opSampleB) / 2;
                     break;
-                case 7:
+                case 6:
                     // specify output operators
                     isOutput[0] = true;
                     // process algorithm
@@ -223,7 +223,7 @@ public:
                     ops[0].setOscPhaseOffset ((opSampleB + opSampleC + opSampleD) / 3);
                     algorithmOut = ops[0].process();
                     break;
-                case 8:
+                case 7:
                     // specify output operators
                     isOutput[0] = true;
                     isOutput[2] = true;
@@ -236,7 +236,7 @@ public:
                     opSampleA = ops[0].process();
                     algorithmOut = (opSampleA + opSampleC) / 2;
                     break;
-                case 9:
+                case 8:
                     // specify output operators
                     isOutput[0] = true;
                     isOutput[1] = true;
@@ -251,7 +251,7 @@ public:
                     opSampleA = ops[0].process();
                     algorithmOut = (opSampleA + opSampleB + opSampleC) / 3;
                     break;
-                case 10:
+                case 9:
                     // specify output operators
                     isOutput[0] = true;
                     isOutput[1] = true;
@@ -264,7 +264,7 @@ public:
                     opSampleA = ops[0].process();
                     algorithmOut = (opSampleA + opSampleB + opSampleC) / 3;
                     break;
-                case 11:
+                case 10:
                     // specify output operators
                     isOutput[0] = true;
                     isOutput[1] = true;
