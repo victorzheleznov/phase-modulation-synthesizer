@@ -13,12 +13,22 @@ public:
 
     void prepareToPlay (float _sampleRate)
     {
-        reverb.reset();
+        resetReverb();
         reverb.setSampleRate (_sampleRate);
     }
 
     void processBlock (juce::AudioSampleBuffer& outputBuffer, int numSamples)
     {
+        // check on/off switch
+        if (*param->reverbOnParam == false)
+        {
+            if (isReverbReset == false)
+                resetReverb();
+            return;
+        }
+        isReverbReset = false;
+
+        // process reverb
         assignParameters();
         int numChannels = outputBuffer.getNumChannels();
         if (numChannels == 1)
@@ -26,6 +36,10 @@ public:
         else if (numChannels == 2)
             reverb.processStereo (outputBuffer.getWritePointer (0), outputBuffer.getWritePointer (1), numSamples);
     }
+private:
+    juce::Reverb reverb;
+    Parameters* param;
+    bool isReverbReset;
 
     void assignParameters()
     {
@@ -37,9 +51,12 @@ public:
         reverbParameters.damping = *param->reverbDampingParam;
         reverb.setParameters (reverbParameters);
     }
-private:
-    juce::Reverb reverb;
-    Parameters* param;
+
+    void resetReverb()
+    {
+        reverb.reset();
+        isReverbReset = true;
+    }
 };
 
 #endif // REVERB_H

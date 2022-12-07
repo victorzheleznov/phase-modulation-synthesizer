@@ -30,7 +30,7 @@ PMSynthAudioProcessor::PMSynthAudioProcessor()
         synth.addVoice (new PMSynthVoice (&param));
     }
     synth.addSound (new PMSynthSound());
-    synth.setNoteStealingEnabled (false); // to remove clipping when number of voices is larger that specified amount
+    //synth.setNoteStealingEnabled (false); // to remove clipping when number of voices is larger that specified amount
 }
 
 PMSynthAudioProcessor::~PMSynthAudioProcessor()

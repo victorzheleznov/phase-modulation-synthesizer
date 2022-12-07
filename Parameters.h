@@ -50,6 +50,7 @@ public:
     std::atomic<float>* delayTimeLinkParam;
     std::atomic<float>* delayFeedbackParam;
     // reverb parameters
+    std::atomic<float>* reverbOnParam;
     std::atomic<float>* reverbDryWetParam;
     std::atomic<float>* reverbRoomSizeParam;
     std::atomic<float>* reverbWidthParam;
@@ -117,6 +118,7 @@ public:
         layout.add (std::make_unique<juce::AudioParameterBool> ("delayTimeLink", "Delay: link stereo", true));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("delayFeedback", "Delay: feedback", 0.0f, 1.0f, 0.0f));
         // reverb
+        layout.add (std::make_unique<juce::AudioParameterBool> ("reverbOn", "Reverb: on", false));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("reverbDryWet", "Reverb: dry/wet", 0.0f, 1.0f, 0.0f));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("reverbRoomSize", "Reverb: room size", 0.0f, 1.0f, 0.5f));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("reverbWidth", "Reverb: width", 0.0f, 1.0f, 0.5f));
@@ -176,6 +178,7 @@ public:
         delayTimeLinkParam = apvts.getRawParameterValue ("delayTimeLink");
         delayFeedbackParam = apvts.getRawParameterValue ("delayFeedback");
         // reverb
+        reverbOnParam = apvts.getRawParameterValue ("reverbOn");
         reverbDryWetParam = apvts.getRawParameterValue ("reverbDryWet");
         reverbRoomSizeParam = apvts.getRawParameterValue ("reverbRoomSize");
         reverbWidthParam = apvts.getRawParameterValue ("reverbWidth");
