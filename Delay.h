@@ -109,19 +109,14 @@ private:
 
     void processStereo (float* leftSamples, float* rightSamples, int numSamples)
     {
-        //float* samples[2] = { leftSamples, rightSamples };
-
         // samples loop
         for (int j = 0; j < numSamples; j++)
         {
-            //for (int i = 0; i < 2; i++)
-            //    samples[i][j] = processSample(samples[i][j], i);
             leftSamples[j] = processSample(leftSamples[j], 0);
             rightSamples[j] = processSample(rightSamples[j], 1);
         }
         areBuffersCleared = false;
     }
-
 };
 
 #endif // DELAY_H

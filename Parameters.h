@@ -83,7 +83,7 @@ public:
         lfoDestinations.add ("Operators phase");
         // filter layout
         layout.add (std::make_unique<juce::AudioParameterChoice> ("filterType", "Filter : type", juce::StringArray{"Low-pass", "High-pass", "Band-pass", "Notch"}, 0));
-        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterFrequency", "Filter: frequency", 30.0f, 18500.0f, 10000.0f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterFrequency", "Filter: frequency", juce::NormalisableRange<float> (30.0f, 18500.0f, 0.f, 0.25f), 10000.0f));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("filterResonance", "Filter: resonance", 0.1f, 10.0f, 0.1f));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("filterEnvAmount", "Filter: envelope amount", -1.0f, 1.0f, 0.0f));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("filterAttack", "Filter: attack", 0.0f, 10.0f, 1.0f));

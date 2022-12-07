@@ -62,7 +62,7 @@ public:
 
 private:
     // define constants
-    const int numVoices = 8;
+    const int numVoices = 16;
     const int numOperators = 4; // A, B, C, D operators
     const int numLFOs = 2;
 

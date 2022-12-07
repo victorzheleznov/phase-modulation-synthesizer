@@ -25,11 +25,12 @@ PMSynthAudioProcessor::PMSynthAudioProcessor()
     delay (&param),
     reverb (&param)
 {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < numVoices; i++)
     {
         synth.addVoice (new PMSynthVoice (&param));
     }
     synth.addSound (new PMSynthSound());
+    synth.setNoteStealingEnabled (false); // to remove clipping when number of voices is larger that specified amount
 }
 
 PMSynthAudioProcessor::~PMSynthAudioProcessor()

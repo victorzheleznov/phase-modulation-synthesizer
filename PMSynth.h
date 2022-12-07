@@ -285,7 +285,7 @@ public:
                 for (int chan = 0; chan < outputBuffer.getNumChannels(); chan++)
                 {
                     // The output sample is scaled by 0.2 so that it is not too loud by default
-                    outputBuffer.addSample (chan, sampleIndex, 0.2 * outSample);
+                    outputBuffer.addSample (chan, sampleIndex, outSample);
                 }
 
                 bool isActive = false;
