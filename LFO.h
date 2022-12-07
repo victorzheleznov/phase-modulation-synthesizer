@@ -46,14 +46,14 @@ public:
 
     /// set LFO waveshape
     /// @param int, waveshape id (0 - sine, 1 - triangle, 2 - saw, 3 - square)
-    void setLFOWaveshape (int _lfoWaveshapeId)
+    void setWaveshape (int _lfoWaveshapeId)
     {
         lfo.setWaveshape (_lfoWaveshapeId);
     }
 
     /// set LFO frequency
     /// @param float, frequency
-    void setLFOFrequency (float _frequency)
+    void setFrequency (float _frequency)
     {
         frequency = _frequency;
         lfo.setFrequency (_frequency);
@@ -61,24 +61,24 @@ public:
 
     /// set LFO frequency offset (useful for frequency modulation)
     /// @param float, frequency offset amount (from -1 to 1)
-    void setLFOFrequencyOffset (float _frequencyOffsetAmount)
+    void setFrequencyOffset (float _frequencyOffsetAmount)
     {
         frequencyOffset += _frequencyOffsetAmount * frequencyMaxOffset;
     }
 
     /// set LFO amplitude
     /// @param float, amplitude
-    void setLFOAmplitude (float _amplitude)
+    void setAmplitude (float _amplitude)
     {
         lfo.setAmplitude (_amplitude);
     }
 
-    void setLFOAmount (float _amount)
+    void setAmount (float _amount)
     {
         amount = _amount;
     }
 
-    void setLFOAmountOffset (float _amountOffset)
+    void setAmountOffset (float _amountOffset)
     {
         amountOffset += _amountOffset;
     }
@@ -86,10 +86,10 @@ public:
     /// start the attack phase of the envelope
     void startNote (Parameters* _param, int _idx, float _sampleRate)
     {
-        (*this).setLFOWaveshape (*_param->lfoWaveshapeParam[_idx]);
+        (*this).setWaveshape (*_param->lfoWaveshapeParam[_idx]);
         (*this).setSampleRate (_sampleRate);
-        (*this).setLFOFrequency (*_param->lfoRateParam[_idx]);
-        (*this).setLFOAmount (*_param->lfoAmountParam[_idx]);
+        (*this).setFrequency (*_param->lfoRateParam[_idx]);
+        (*this).setAmount (*_param->lfoAmountParam[_idx]);
         if (*_param->lfoRetriggerParam[_idx] == true)
         {
             phase = 0.0f;

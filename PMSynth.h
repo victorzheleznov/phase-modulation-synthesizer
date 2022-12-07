@@ -131,10 +131,10 @@ public:
                         filter.setResonanceOffset (lfoSample);
                     // previous LFO rate modulation
                     if (lfo[i].isAppliedToLFORate (lfoDestination, param->numOperators, param->numLFOs))
-                        lfo[i-1].setLFOFrequencyOffset (lfoSample);
+                        lfo[i-1].setFrequencyOffset (lfoSample);
                     // previous LFO amount modulation
                     if (lfo[i].isAppliedToLFOAmount (lfoDestination, param->numOperators, param->numLFOs))
-                        lfo[i-1].setLFOAmountOffset (lfoSample);
+                        lfo[i-1].setAmountOffset (lfoSample);
                 }
                 
                 // process PM algorithm
