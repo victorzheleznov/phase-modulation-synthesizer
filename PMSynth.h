@@ -4,10 +4,9 @@
 
 #include <JuceHeader.h>
 #include "Operator.h"
+#include "Algorithm.h"
 #include "Filter.h"
 #include "LFO.h"
-#include "Delay.h"
-#include "Reverb.h"
 #include "Parameters.h"
 
 // ===========================
@@ -63,6 +62,8 @@ public:
         {
             ops[i].startNote (param, i, freq, velocity, getSampleRate());
         }
+        // prepare algorithm
+        algorithm.startNote (param);
         // prepare filter
         filter.startNote (param, getSampleRate());
         // prepare LFOs
@@ -137,149 +138,8 @@ public:
                 }
                 
                 // process PM algorithm
-                float algorithmOut = 0.0f;
                 bool isOutput[4] = {false};
-                float opSampleA, opSampleB, opSampleC, opSampleD;
-                switch ((int) *param->algorithm)
-                {
-                case 0: // D -> C -> B -> A
-                    // specify output operators
-                    isOutput[0] = true;
-                    // process algorithm
-                    opSampleD = ops[3].process();
-                    ops[2].setOscPhaseOffset (opSampleD);
-                    opSampleC = ops[2].process();
-                    ops[1].setOscPhaseOffset (opSampleC);
-                    opSampleB = ops[1].process();
-                    ops[0].setOscPhaseOffset (opSampleB);
-                    algorithmOut = ops[0].process();
-                    break;
-                case 1:
-                    // specify output operators
-                    isOutput[0] = true;
-                    // process algorithm
-                    opSampleD = ops[3].process();
-                    opSampleC = ops[2].process();
-                    ops[1].setOscPhaseOffset ((opSampleC + opSampleD) / 2);
-                    opSampleB = ops[1].process();
-                    ops[0].setOscPhaseOffset (opSampleB);
-                    algorithmOut = ops[0].process();
-                    break;
-                case 2:
-                    // specify output operators
-                    isOutput[0] = true;
-                    // process algorithm
-                    opSampleD = ops[3].process();
-                    opSampleC = ops[2].process();
-                    ops[1].setOscPhaseOffset (opSampleC);
-                    opSampleB = ops[1].process();
-                    ops[0].setOscPhaseOffset ((opSampleB + opSampleD) / 2);
-                    algorithmOut = ops[0].process();
-                    break;
-                case 3:
-                    // specify output operators
-                    isOutput[0] = true;
-                    // process algorithm
-                    opSampleD = ops[3].process();
-                    ops[2].setOscPhaseOffset (opSampleD);
-                    opSampleC = ops[2].process();
-                    ops[1].setOscPhaseOffset (opSampleD);
-                    opSampleB = ops[1].process();
-                    ops[0].setOscPhaseOffset ((opSampleB + opSampleC) / 2);
-                    algorithmOut = ops[0].process();
-                    break;
-                case 4:
-                    // specify output operators
-                    isOutput[0] = true;
-                    isOutput[1] = true;
-                    // process algorithm
-                    opSampleD = ops[3].process();
-                    ops[2].setOscPhaseOffset (opSampleD);
-                    opSampleC = ops[2].process();
-                    ops[1].setOscPhaseOffset (opSampleC);
-                    opSampleB = ops[1].process();
-                    ops[0].setOscPhaseOffset (opSampleC);
-                    opSampleA = ops[0].process();
-                    algorithmOut = (opSampleA + opSampleB) / 2;
-                    break;
-                case 5:
-                    // specify output operators
-                    isOutput[0] = true;
-                    isOutput[1] = true;
-                    // process algorithm
-                    opSampleD = ops[3].process();
-                    ops[2].setOscPhaseOffset (opSampleD);
-                    opSampleC = ops[2].process();
-                    ops[1].setOscPhaseOffset (opSampleC);
-                    opSampleB = ops[1].process();
-                    opSampleA = ops[0].process();
-                    algorithmOut = (opSampleA + opSampleB) / 2;
-                    break;
-                case 6:
-                    // specify output operators
-                    isOutput[0] = true;
-                    // process algorithm
-                    opSampleD = ops[3].process();
-                    opSampleC = ops[2].process();
-                    opSampleB = ops[1].process();
-                    ops[0].setOscPhaseOffset ((opSampleB + opSampleC + opSampleD) / 3);
-                    algorithmOut = ops[0].process();
-                    break;
-                case 7:
-                    // specify output operators
-                    isOutput[0] = true;
-                    isOutput[2] = true;
-                    // process algorithm
-                    opSampleD = ops[3].process();
-                    ops[2].setOscPhaseOffset (opSampleD);
-                    opSampleC = ops[2].process();
-                    opSampleB = ops[1].process();
-                    ops[0].setOscPhaseOffset (opSampleB);
-                    opSampleA = ops[0].process();
-                    algorithmOut = (opSampleA + opSampleC) / 2;
-                    break;
-                case 8:
-                    // specify output operators
-                    isOutput[0] = true;
-                    isOutput[1] = true;
-                    isOutput[2] = true;
-                    // process algorithm
-                    opSampleD = ops[3].process();
-                    ops[2].setOscPhaseOffset (opSampleD);
-                    opSampleC = ops[2].process();
-                    ops[1].setOscPhaseOffset (opSampleD);
-                    opSampleB = ops[1].process();
-                    ops[0].setOscPhaseOffset (opSampleD);
-                    opSampleA = ops[0].process();
-                    algorithmOut = (opSampleA + opSampleB + opSampleC) / 3;
-                    break;
-                case 9:
-                    // specify output operators
-                    isOutput[0] = true;
-                    isOutput[1] = true;
-                    isOutput[2] = true;
-                    // process algorithm
-                    opSampleD = ops[3].process();
-                    ops[2].setOscPhaseOffset (opSampleD);
-                    opSampleC = ops[2].process();
-                    opSampleB = ops[1].process();
-                    opSampleA = ops[0].process();
-                    algorithmOut = (opSampleA + opSampleB + opSampleC) / 3;
-                    break;
-                case 10:
-                    // specify output operators
-                    isOutput[0] = true;
-                    isOutput[1] = true;
-                    isOutput[2] = true;
-                    isOutput[3] = true;
-                    // process algorithm
-                    opSampleD = ops[3].process();
-                    opSampleC = ops[2].process();
-                    opSampleB = ops[1].process();
-                    opSampleA = ops[0].process();
-                    algorithmOut = (opSampleA + opSampleB + opSampleC + opSampleD) / 4;
-                    break;
-                }
+                float algorithmOut = algorithm.process(ops, isOutput);
 
                 // process filter
                 float filterOut;
@@ -335,6 +195,7 @@ private:
 
     // base members
     Operator ops[4];
+    Algorithm algorithm;
     Filter filter;
     LFO lfo[2];
 
