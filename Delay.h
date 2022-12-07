@@ -1,6 +1,7 @@
 #ifndef DELAY_H
 #define DELAY_H
 
+#include <JuceHeader.h>
 #include <cmath>  // for rounding functions
 #include <memory> // for unique_ptr
 #include "Parameters.h"
@@ -22,6 +23,15 @@ public:
         (*this).setSampleRate (_sampleRate);
         sizeInSamples = int(std::ceil (maxDelayTime * sampleRate));
         allocateBuffers();
+        smoothedDryWet.reset (_sampleRate, 0.1f);
+        smoothedDryWet.setCurrentAndTargetValue (0.0f);
+        smoothedFeedback.reset (_sampleRate, 0.1f);
+        smoothedFeedback.setCurrentAndTargetValue (0.0f);
+        for (int i = 0; i < 2; i++)
+        {
+            smoothedDelayTime[i].reset (_sampleRate, 0.1f);
+            smoothedDelayTime[i].setCurrentAndTargetValue (minDelayTime);
+        }
     }
 
     void processBlock (juce::AudioSampleBuffer& outputBuffer, int numSamples)
@@ -53,6 +63,11 @@ private:
     const float minDelayTime;
     const float maxDelayTime;
 
+    // smoothed values
+    juce::SmoothedValue<float> smoothedDryWet;
+    juce::SmoothedValue<float> smoothedDelayTime[2];
+    juce::SmoothedValue<float> smoothedFeedback;
+
     /// set sample rate
     /// @param float, sample rate
     void setSampleRate (float _sampleRate)
@@ -83,14 +98,35 @@ private:
     /// @return float, delayed output
     float processSample (float _inSample, int channelIdx)
     {
-        // define variables
-        float delayTime;
+        // set target values for delay time
         if (*param->delayTimeLinkParam == true)
-            delayTime = *param->delayTimeParam[0];
+            smoothedDelayTime[channelIdx].setTargetValue (*param->delayTimeParam[0]);
         else
-            delayTime = *param->delayTimeParam[channelIdx];
-        float feedback = *param->delayFeedbackParam;
-        float dryWet = *param->delayDryWetParam;
+            smoothedDelayTime[channelIdx].setTargetValue (*param->delayTimeParam[channelIdx]);
+        // check changing delay time
+        if (juce::isWithin (smoothedDelayTime[0].getCurrentValue(), smoothedDelayTime[0].getTargetValue(), 1e-6f) == false ||
+            juce::isWithin (smoothedDelayTime[1].getCurrentValue(), smoothedDelayTime[1].getTargetValue(), 1e-6f) == false)
+        {
+            // start fade out when delay time change is detected
+            smoothedDryWet.setTargetValue (0.0f);
+        }
+        else
+        {
+            // start fade in and process dry/wet normally when delay time is fixed
+            smoothedDryWet.setTargetValue (*param->delayDryWetParam);
+        }
+        // calculate current delay time
+        float delayTime;
+        if (smoothedDryWet.getCurrentValue() == 0.0f)
+            // change delay time only when the effect isn't active
+            delayTime = smoothedDelayTime[channelIdx].getNextValue();
+        else
+            // keep delay time foxed while fade out
+            delayTime = smoothedDelayTime[channelIdx].getCurrentValue();
+        // get feedback and dry/wet values
+        smoothedFeedback.setTargetValue (*param->delayFeedbackParam);
+        float feedback = smoothedFeedback.getNextValue();
+        float dryWet = smoothedDryWet.getNextValue();
         // process delay line
         float readTimeInSamples = float(writeIndex) - delayTime * sampleRate;
         while (readTimeInSamples < 0.0f)
