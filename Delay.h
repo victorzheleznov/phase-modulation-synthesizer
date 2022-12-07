@@ -121,7 +121,7 @@ private:
             // change delay time only when the effect isn't active
             delayTime = smoothedDelayTime[channelIdx].getNextValue();
         else
-            // keep delay time foxed while fade out
+            // keep delay time fixed while fade out
             delayTime = smoothedDelayTime[channelIdx].getCurrentValue();
         // get feedback and dry/wet values
         smoothedFeedback.setTargetValue (*param->delayFeedbackParam);

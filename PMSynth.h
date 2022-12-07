@@ -107,8 +107,10 @@ public:
                 // apply LFOs
                 for (int i = 0; i < param->numLFOs; i++)
                 {
+                    // check on/off switch
                     if (*param->lfoOnParam[i] == false)
                         continue;
+                    // get LFO sample
                     int lfoDestination = *param->lfoDestinationParam[i];
                     float lfoSample = lfo[i].process();
                     // operators level modulation
@@ -294,6 +296,7 @@ public:
                     outputBuffer.addSample (chan, sampleIndex, outSample);
                 }
 
+                // check envelope end for output operators
                 bool isActive = false;
                 for (int i = 0; i < param->numOperators; i++)
                 {   
@@ -330,6 +333,7 @@ private:
     /// Should the voice be playing?
     bool playing = false;
 
+    // base members
     Operator ops[4];
     Filter filter;
     LFO lfo[2];

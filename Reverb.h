@@ -15,6 +15,14 @@ public:
     {
         resetReverb();
         reverb.setSampleRate (_sampleRate);
+        smoothedDryWet.reset (_sampleRate, 0.1f);
+        smoothedDryWet.setCurrentAndTargetValue (0.0f);
+        smoothedRoomSize.reset (_sampleRate, 0.1f);
+        smoothedRoomSize.setCurrentAndTargetValue (0.5f);
+        smoothedWidth.reset (_sampleRate, 0.1f);
+        smoothedWidth.setCurrentAndTargetValue (0.5f);
+        smoothedDamping.reset (_sampleRate, 0.1f);
+        smoothedDamping.setCurrentAndTargetValue (0.5f);
     }
 
     void processBlock (juce::AudioSampleBuffer& outputBuffer, int numSamples)
@@ -40,14 +48,26 @@ private:
     Parameters* param;
     bool isReverbReset;
 
+    // smoothed values
+    juce::SmoothedValue<float> smoothedDryWet;
+    juce::SmoothedValue<float> smoothedRoomSize;
+    juce::SmoothedValue<float> smoothedWidth;
+    juce::SmoothedValue<float> smoothedDamping;
+
     void assignParameters()
     {
+        // set target values
+        smoothedDryWet.setTargetValue (*param->reverbDryWetParam);
+        smoothedRoomSize.setTargetValue (*param->reverbRoomSizeParam);
+        smoothedWidth.setTargetValue (*param->reverbWidthParam);
+        smoothedDamping.setTargetValue (*param->reverbDampingParam);
+        // set reverb parameters
         juce::Reverb::Parameters reverbParameters;
-        reverbParameters.dryLevel = 1.0f - *param->reverbDryWetParam;
+        reverbParameters.dryLevel = 1.0f - smoothedDryWet.getNextValue();
         reverbParameters.wetLevel = 1.0f - reverbParameters.dryLevel;
-        reverbParameters.roomSize = *param->reverbRoomSizeParam;
-        reverbParameters.width = *param->reverbWidthParam;
-        reverbParameters.damping = *param->reverbDampingParam;
+        reverbParameters.roomSize = smoothedRoomSize.getNextValue();
+        reverbParameters.width = smoothedWidth.getNextValue();
+        reverbParameters.damping = smoothedDamping.getNextValue();
         reverb.setParameters (reverbParameters);
     }
 
