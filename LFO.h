@@ -30,9 +30,11 @@ public:
             freq = minFrequency;
         lfo.setFrequency (freq);
         float lfoSample = am * lfo.process();
+        smoothedLFOValue.setTargetValue (lfoSample);
+        float smoothedLFOSample = smoothedLFOValue.getNextValue();
         phase = lfo.getPhase();
         resetModulations();
-        return lfoSample;
+        return smoothedLFOSample;
     }
 
     /// set sample rate for LFO
@@ -93,6 +95,8 @@ public:
             phase = 0.0f;
             lfo.setPhase (0.0f);
         }
+        smoothedLFOValue.reset (_sampleRate, 1e-2f);
+        smoothedLFOValue.setCurrentAndTargetValue (0.0f);
     }
 
     /// start the release phase of the envelope
@@ -153,6 +157,7 @@ public:
 private:
     // base members
     OscSwitch lfo;
+    juce::SmoothedValue<float> smoothedLFOValue;
     // LFO parameters
     float amount;
     float frequency;
