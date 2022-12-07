@@ -27,7 +27,6 @@ public:
             return;
         }
         isReverbReset = false;
-
         // process reverb
         assignParameters();
         int numChannels = outputBuffer.getNumChannels();

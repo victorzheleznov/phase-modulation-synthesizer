@@ -94,7 +94,8 @@ public:
         (*this).setEnvParameters (*_param->opAttackParam[_idx], *_param->opDecayParam[_idx], *_param->opSustainParam[_idx], *_param->opReleaseParam[_idx]);
         (*this).setPitchEnvParameters (*_param->pitchEnvInitialLevelParam, *_param->pitchEnvDecayParam);
         env.noteOn();
-        pitchEnv.noteOn();
+        if (*_param->pitchEnvOnParam == true)
+            pitchEnv.noteOn();
     }
 
     /// start the release phase of the envelope

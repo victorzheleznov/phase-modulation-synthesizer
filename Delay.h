@@ -26,6 +26,15 @@ public:
 
     void processBlock (juce::AudioSampleBuffer& outputBuffer, int numSamples)
     {
+        // check on/off switch
+        if (*param->delayOnParam == false)
+        {
+            if (areBuffersClear == false)
+                clearBuffers();
+            return;
+        }
+        areBuffersClear = false;
+        // process delay
         int numChannels = outputBuffer.getNumChannels();
         if (numChannels == 1)
             processMono (outputBuffer.getWritePointer (0), numSamples);
@@ -38,7 +47,7 @@ private:
     int sizeInSamples = 0;                   // size [samples]
     int writeIndex = 0;                      // write location in a buffer
     std::unique_ptr<float[]> buffer[2] = {nullptr}; // unique_ptr that manages a dynamically-allocated data array (data is deleted automatically when goes out of scope)
-    bool areBuffersCleared = false;
+    bool areBuffersClear = false;
 
     Parameters* param;
     const float minDelayTime;
@@ -66,7 +75,7 @@ private:
             for (int j = 0; j < sizeInSamples; j++)
                 buffer[i][j] = 0.0f;
         }
-        areBuffersCleared = true;
+        areBuffersClear = true;
     }
 
     /// process delay line
@@ -109,13 +118,11 @@ private:
 
     void processStereo (float* leftSamples, float* rightSamples, int numSamples)
     {
-        // samples loop
         for (int j = 0; j < numSamples; j++)
         {
             leftSamples[j] = processSample(leftSamples[j], 0);
             rightSamples[j] = processSample(rightSamples[j], 1);
         }
-        areBuffersCleared = false;
     }
 };
 

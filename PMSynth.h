@@ -107,6 +107,8 @@ public:
                 // apply LFOs
                 for (int i = 0; i < param->numLFOs; i++)
                 {
+                    if (*param->lfoOnParam[i] == false)
+                        continue;
                     int lfoDestination = *param->lfoDestinationParam[i];
                     float lfoSample = lfo[i].process();
                     // operators level modulation
@@ -232,7 +234,7 @@ public:
                     opSampleB = ops[1].process();
                     ops[0].setOscPhaseOffset (opSampleB);
                     opSampleA = ops[0].process();
-                    algorithmOut = 0.5 * (opSampleA + opSampleC);
+                    algorithmOut = (opSampleA + opSampleC) / 2;
                     break;
                 case 9:
                     // specify output operators
@@ -278,7 +280,11 @@ public:
                 }
 
                 // process filter
-                float filterOut = filter.process (algorithmOut);
+                float filterOut;
+                if (*param->filterOnParam == true)
+                    filterOut = filter.process (algorithmOut);
+                else
+                    filterOut = algorithmOut;
 
                 // for each channel, write the currentSample float to the output
                 float outSample = filterOut;

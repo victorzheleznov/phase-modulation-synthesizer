@@ -27,6 +27,7 @@ public:
     std::atomic<float>* opSustainParam[4];
     std::atomic<float>* opReleaseParam[4];
     // filter parameters
+    std::atomic<float>* filterOnParam;
     std::atomic<float>* filterTypeParam;
     std::atomic<float>* filterFrequencyParam;
     std::atomic<float>* filterResonanceParam;
@@ -36,15 +37,18 @@ public:
     std::atomic<float>* filterSustainParam;
     std::atomic<float>* filterReleaseParam;
     // LFO parameters
+    std::atomic<float>* lfoOnParam[2];
     std::atomic<float>* lfoDestinationParam[2];
     std::atomic<float>* lfoWaveshapeParam[2];
     std::atomic<float>* lfoRateParam[2];
     std::atomic<float>* lfoAmountParam[2];
     std::atomic<float>* lfoRetriggerParam[2];
     // pitch envelope parameters
+    std::atomic<float>* pitchEnvOnParam;
     std::atomic<float>* pitchEnvInitialLevelParam;
     std::atomic<float>* pitchEnvDecayParam;
     // delay parameters
+    std::atomic<float>* delayOnParam;
     std::atomic<float>* delayDryWetParam;
     std::atomic<float>* delayTimeParam[2];
     std::atomic<float>* delayTimeLinkParam;
@@ -83,7 +87,8 @@ public:
         }
         lfoDestinations.add ("Operators phase");
         // filter layout
-        layout.add (std::make_unique<juce::AudioParameterChoice> ("filterType", "Filter : type", juce::StringArray{"Low-pass", "High-pass", "Band-pass", "Notch"}, 0));
+        layout.add (std::make_unique<juce::AudioParameterBool> ("filterOn", "Filter: on", true));
+        layout.add (std::make_unique<juce::AudioParameterChoice> ("filterType", "Filter: type", juce::StringArray{"Low-pass", "High-pass", "Band-pass", "Notch"}, 0));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("filterFrequency", "Filter: frequency", juce::NormalisableRange<float> (30.0f, 18500.0f, 0.f, 0.25f), 10000.0f));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("filterResonance", "Filter: resonance", 0.1f, 10.0f, 0.1f));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("filterEnvAmount", "Filter: envelope amount", -1.0f, 1.0f, 0.0f));
@@ -100,18 +105,21 @@ public:
             paramIdBase += std::to_string (i+1);
             std::string paramNameBase ("LFO ");
             paramNameBase += std::to_string (i+1);
+            layout.add (std::make_unique<juce::AudioParameterBool> ((paramIdBase + "On").c_str(), (paramNameBase + ": on").c_str(), false));
             layout.add (std::make_unique<juce::AudioParameterChoice> ((paramIdBase + "Destination").c_str(), (paramNameBase + ": destination").c_str(), lfoDestinations, 0));
             layout.add (std::make_unique<juce::AudioParameterChoice> ((paramIdBase + "Waveshape").c_str(), (paramNameBase + ": waveshape").c_str(), juce::StringArray{ "Sine", "Triangle", "Saw", "Square" }, 0));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Rate").c_str(), (paramNameBase + ": rate").c_str(), 0.01f, 40.0f, 0.01f));
-            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Amount").c_str(), (paramNameBase + ": amount").c_str(), 0.0f, 1.0f, 0.0f));
+            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Amount").c_str(), (paramNameBase + ": amount").c_str(), -1.0f, 1.0f, 0.0f));
             layout.add (std::make_unique<juce::AudioParameterBool> ((paramIdBase + "Retrigger").c_str(), (paramNameBase + ": retrigger").c_str(), true));
             lfoDestinations.add ((paramNameBase + " rate").c_str());
             lfoDestinations.add ((paramNameBase + " amount").c_str());
         }
         // pitch envelope
+        layout.add (std::make_unique<juce::AudioParameterBool> ("pitchEnvOn", "Pitch env: on", false));
         layout.add (std::make_unique<juce::AudioParameterInt> ("pitchEnvInitialLevel", "Pitch env: initial level", -48, 48, 0));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("pitchEnvDecay", "Pitch env: decay", 0.0f, 10.0f, 1.0f));
         // delay
+        layout.add (std::make_unique<juce::AudioParameterBool> ("delayOn", "Delay: on", false));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("delayDryWet", "Delay: dry/wet", 0.0f, 1.0f, 0.0f));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("delayTimeLeft", "Delay: left time", 0.1f, 5.0f, 0.1f));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("delayTimeRight", "Delay: right time", 0.1f, 5.0f, 0.1f));
@@ -149,6 +157,7 @@ public:
             opReleaseParam[i] = apvts.getRawParameterValue (paramIdBase + "Release");
         }
         // filter parameters
+        filterOnParam = apvts.getRawParameterValue ("filterOn");
         filterTypeParam = apvts.getRawParameterValue ("filterType");
         filterFrequencyParam = apvts.getRawParameterValue ("filterFrequency");
         filterResonanceParam = apvts.getRawParameterValue ("filterResonance");
@@ -162,6 +171,7 @@ public:
         {
             std::string paramIdBase ("lfo");
             paramIdBase += std::to_string (i + 1);
+            lfoOnParam[i] = apvts.getRawParameterValue (paramIdBase + "On");
             lfoDestinationParam[i] = apvts.getRawParameterValue (paramIdBase + "Destination");
             lfoWaveshapeParam[i] = apvts.getRawParameterValue (paramIdBase + "Waveshape");
             lfoRateParam[i] = apvts.getRawParameterValue (paramIdBase + "Rate");
@@ -169,9 +179,11 @@ public:
             lfoRetriggerParam[i] = apvts.getRawParameterValue (paramIdBase + "Retrigger");
         }
         // pitch envelope
+        pitchEnvOnParam = apvts.getRawParameterValue ("pitchEnvOn");
         pitchEnvInitialLevelParam = apvts.getRawParameterValue ("pitchEnvInitialLevel");
         pitchEnvDecayParam = apvts.getRawParameterValue ("pitchEnvDecay");
         // delay
+        delayOnParam = apvts.getRawParameterValue ("delayOn");
         delayDryWetParam = apvts.getRawParameterValue ("delayDryWet");
         delayTimeParam[0] = apvts.getRawParameterValue ("delayTimeLeft");
         delayTimeParam[1] = apvts.getRawParameterValue ("delayTimeRight");
