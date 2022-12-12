@@ -80,23 +80,23 @@ public:
             layout.add (std::make_unique<juce::AudioParameterInt> ((paramIdBase + "Coarse").c_str(), (paramNameBase + ": coarse").c_str(), 1, 48, 1));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Fine").c_str(), (paramNameBase + ": fine").c_str(), 0.0f, 1000.0f, 0.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Level").c_str(), (paramNameBase + ": level").c_str(), 0.0f, 1.0f, 1.0f));
-            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Attack").c_str(), (paramNameBase + ": attack").c_str(), 0.0f, 10.0f, 1.0f));
-            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Decay").c_str(), (paramNameBase + ": decay").c_str(), 0.0f, 10.0f, 1.0f));
-            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Sustain").c_str(), (paramNameBase + ": sustain").c_str(), 0.0f, 2.0f, 1.0f));
-            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Release").c_str(), (paramNameBase + ": release").c_str(), 0.0f, 10.0f, 1.0f));
+            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Attack").c_str(), (paramNameBase + ": attack").c_str(), juce::NormalisableRange<float> (1e-3f, 20.0f, 0.0f, 0.25f), 1.0f));
+            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Decay").c_str(), (paramNameBase + ": decay").c_str(), juce::NormalisableRange<float> (1e-3f, 60.0f, 0.0f, 0.25f), 1.0f));
+            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Sustain").c_str(), (paramNameBase + ": sustain").c_str(), 0.0f, 1.0f, 1.0f));
+            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Release").c_str(), (paramNameBase + ": release").c_str(), juce::NormalisableRange<float> (1e-3f, 60.0f, 0.0f, 0.25f), 1.0f));
             lfoDestinations.add ((paramNameBase + " level").c_str());
         }
         lfoDestinations.add ("Operators phase");
         // filter layout
         layout.add (std::make_unique<juce::AudioParameterBool> ("filterOn", "Filter: on", true));
         layout.add (std::make_unique<juce::AudioParameterChoice> ("filterType", "Filter: type", juce::StringArray{"Low-pass", "High-pass", "Band-pass", "Notch"}, 0));
-        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterFrequency", "Filter: frequency", juce::NormalisableRange<float> (30.0f, 18500.0f, 0.f, 0.25f), 10000.0f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterFrequency", "Filter: frequency", juce::NormalisableRange<float> (30.0f, 18500.0f, 0.0f, 0.25f), 10000.0f));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("filterResonance", "Filter: resonance", 0.1f, 10.0f, 0.1f));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("filterEnvAmount", "Filter: envelope amount", -1.0f, 1.0f, 0.0f));
-        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterAttack", "Filter: attack", 0.0f, 10.0f, 1.0f));
-        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterDecay", "Filter: decay", 0.0f, 10.0f, 1.0f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterAttack", "Filter: attack", juce::NormalisableRange<float> (1e-3f, 20.0f, 0.0f, 0.25f), 1.0f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterDecay", "Filter: decay", juce::NormalisableRange<float> (1e-3f, 60.0f, 0.0f, 0.25f), 1.0f));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("filterSustain", "Filter: sustain", 0.0f, 1.0f, 1.0f));
-        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterRelease", "Filter: release", 0.0f, 10.0f, 1.0f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("filterRelease", "Filter: release", juce::NormalisableRange<float> (1e-3f, 60.0f, 0.0f, 0.25f), 1.0f));
         lfoDestinations.add ("Filter frequency");
         lfoDestinations.add ("Filter resonance");
         // LFOs layout
@@ -118,7 +118,7 @@ public:
         // pitch envelope
         layout.add (std::make_unique<juce::AudioParameterBool> ("pitchEnvOn", "Pitch env: on", false));
         layout.add (std::make_unique<juce::AudioParameterInt> ("pitchEnvInitialLevel", "Pitch env: initial level", -48, 48, 0));
-        layout.add (std::make_unique<juce::AudioParameterFloat> ("pitchEnvDecay", "Pitch env: decay", 0.0f, 10.0f, 1.0f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("pitchEnvDecay", "Pitch env: decay", juce::NormalisableRange<float> (1e-3f, 60.0f, 0.0f, 0.25f), 1.0f));
         // delay
         layout.add (std::make_unique<juce::AudioParameterBool> ("delayOn", "Delay: on", false));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("delayDryWet", "Delay: dry/wet", 0.0f, 1.0f, 0.0f));
