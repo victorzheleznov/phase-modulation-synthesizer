@@ -67,7 +67,6 @@ public:
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
         juce::StringArray lfoDestinations;
         // algorithm
-        //layout.add (std::make_unique<juce::AudioParameterInt> ("algorithm", "PM algorithm", 1, 11, 1));
         layout.add (std::make_unique<juce::AudioParameterChoice> ("algorithm", "PM algorithm", juce::StringArray{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"}, 0));
         // operators layout
         for (int i = 0; i < numOperators; i++)
@@ -79,7 +78,10 @@ public:
             layout.add (std::make_unique<juce::AudioParameterChoice> ((paramIdBase + "Waveshape").c_str(), (paramNameBase + ": waveshape").c_str(), juce::StringArray{"Sine", "Triangle", "Saw", "Square"}, 0));
             layout.add (std::make_unique<juce::AudioParameterInt> ((paramIdBase + "Coarse").c_str(), (paramNameBase + ": coarse").c_str(), 1, 48, 1));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Fine").c_str(), (paramNameBase + ": fine").c_str(), 0.0f, 1000.0f, 0.0f));
-            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Level").c_str(), (paramNameBase + ": level").c_str(), 0.0f, 1.0f, 1.0f));
+            if (i == 0)
+                layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Level").c_str(), (paramNameBase + ": level").c_str(), 0.0f, 1.0f, 1.0f));
+            else
+                layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Level").c_str(), (paramNameBase + ": level").c_str(), 0.0f, 1.0f, 0.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Attack").c_str(), (paramNameBase + ": attack").c_str(), juce::NormalisableRange<float> (1e-3f, 20.0f, 0.0f, 0.25f), 1.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Decay").c_str(), (paramNameBase + ": decay").c_str(), juce::NormalisableRange<float> (1e-3f, 60.0f, 0.0f, 0.25f), 1.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Sustain").c_str(), (paramNameBase + ": sustain").c_str(), 0.0f, 1.0f, 1.0f));
@@ -109,7 +111,7 @@ public:
             layout.add (std::make_unique<juce::AudioParameterBool> ((paramIdBase + "On").c_str(), (paramNameBase + ": on").c_str(), false));
             layout.add (std::make_unique<juce::AudioParameterChoice> ((paramIdBase + "Destination").c_str(), (paramNameBase + ": destination").c_str(), lfoDestinations, 0));
             layout.add (std::make_unique<juce::AudioParameterChoice> ((paramIdBase + "Waveshape").c_str(), (paramNameBase + ": waveshape").c_str(), juce::StringArray{ "Sine", "Triangle", "Saw", "Square" }, 0));
-            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Rate").c_str(), (paramNameBase + ": rate").c_str(), 0.01f, 40.0f, 0.01f));
+            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Rate").c_str(), (paramNameBase + ": rate").c_str(), juce::NormalisableRange<float> (0.01f, 40.0f, 0.0f, 0.25f), 0.01f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Amount").c_str(), (paramNameBase + ": amount").c_str(), -1.0f, 1.0f, 0.0f));
             layout.add (std::make_unique<juce::AudioParameterBool> ((paramIdBase + "Retrigger").c_str(), (paramNameBase + ": retrigger").c_str(), true));
             lfoDestinations.add ((paramNameBase + " rate").c_str());
