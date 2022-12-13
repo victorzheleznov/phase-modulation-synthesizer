@@ -46,10 +46,10 @@ public:
     void setFrequency (float _frequency)
     {
         jassert (sampleRate > 0.0f); // check if sample rate is set (the default value on initialization is 0)
-        if (_frequency >= 0.5f * sampleRate)
+        if (fabs(_frequency) >= 0.5f * sampleRate)
             frequency = 0.5f * sampleRate;
         else
-            frequency = _frequency;
+            frequency = fabs(_frequency);
         phaseDelta = frequency / sampleRate;
     }
     
