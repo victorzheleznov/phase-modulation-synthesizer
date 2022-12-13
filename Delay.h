@@ -30,7 +30,7 @@ public:
         sizeInSamples = int(std::ceil (maxDelayTime * sampleRate));
         allocateBuffers();
         // initialise smoothed parameters
-        smoothedDryWet.reset (_sampleRate, 0.1f);
+        smoothedDryWet.reset (_sampleRate, 0.2f);
         smoothedDryWet.setCurrentAndTargetValue (0.0f);
         smoothedFeedback.reset (_sampleRate, 0.1f);
         smoothedFeedback.setCurrentAndTargetValue (0.0f);
@@ -66,7 +66,9 @@ private:
     // base variables
     float sampleRate = 0.0f;                         // sample rate [Hz]
     int sizeInSamples = 0;                           // size [samples]
-    int writeIndex = 0;                              // write location in a buffer
+    int writeIndex = -1;                             // write location in a buffer
+    float dryWet = 0;                                // dry/wet
+    float feedback = 0;                              // feedback
     std::unique_ptr<float[]> buffer[2] = {nullptr};  // unique_ptr that manages a dynamically-allocated delay line (data is deleted automatically when goes out of scope)
     bool areBuffersClear = false;                    // flag for clear buffers state
     // parameters
@@ -111,35 +113,18 @@ private:
     /// @return float, delayed output
     float processSample (float _inSample, int channelIdx)
     {
-        // set target value for delay time
-        if (*param->delayTimeLinkParam == true)
-            smoothedDelayTime[channelIdx].setTargetValue (*param->delayTimeParam[0]);
-        else
-            smoothedDelayTime[channelIdx].setTargetValue (*param->delayTimeParam[channelIdx]);
-        // check changing delay time
-        if (juce::isWithin (smoothedDelayTime[0].getCurrentValue(), smoothedDelayTime[0].getTargetValue(), 1e-6f) == false ||
-            juce::isWithin (smoothedDelayTime[1].getCurrentValue(), smoothedDelayTime[1].getTargetValue(), 1e-6f) == false)
-        {
-            // start fade out when the delay time change is detected
-            smoothedDryWet.setTargetValue (0.0f);
-        }
-        else
-        {
-            // start fade in and process dry/wet normally when the delay time is fixed
-            smoothedDryWet.setTargetValue (*param->delayDryWetParam);
-        }
         // calculate current delay time
         float delayTime;
         if (smoothedDryWet.getCurrentValue() == 0.0f)
+        {
             // change delay time only when the effect isn't active
             delayTime = smoothedDelayTime[channelIdx].getNextValue();
+        }
         else
+        {
             // keep delay time fixed while fade out
             delayTime = smoothedDelayTime[channelIdx].getCurrentValue();
-        // get feedback and dry/wet values
-        smoothedFeedback.setTargetValue (*param->delayFeedbackParam);
-        float feedback = smoothedFeedback.getNextValue();
-        float dryWet = smoothedDryWet.getNextValue();
+        }
         // process delay line
         float readTimeInSamples = float(writeIndex) - delayTime * sampleRate;  // fractional read time in samples
         while (readTimeInSamples < 0.0f)
@@ -168,8 +153,8 @@ private:
     {
         for (int j = 0; j < numSamples; j++)
         {
+            updateParameters();
             samples[j] = processSample(samples[j], 0);
-            incrementWriteIndex();
         }
     }
 
@@ -181,15 +166,40 @@ private:
     {
         for (int j = 0; j < numSamples; j++)
         {
+            updateParameters();
             leftSamples[j] = processSample(leftSamples[j], 0);
             rightSamples[j] = processSample(rightSamples[j], 1);
-            incrementWriteIndex();
         }
     }
 
-    /// increment buffers write position
-    void incrementWriteIndex()
+    /// update delay parameters
+    void updateParameters()
     {
+        // set target value for delay time
+        smoothedDelayTime[0].setTargetValue (*param->delayTimeParam[0]);
+        if (*param->delayTimeLinkParam == true)
+            smoothedDelayTime[1].setTargetValue (*param->delayTimeParam[0]);
+        else
+            smoothedDelayTime[1].setTargetValue (*param->delayTimeParam[1]);
+        // check changing delay time
+        if (juce::isWithin (smoothedDelayTime[0].getCurrentValue(), smoothedDelayTime[0].getTargetValue(), 1e-6f) == false ||
+            juce::isWithin (smoothedDelayTime[1].getCurrentValue(), smoothedDelayTime[1].getTargetValue(), 1e-6f) == false)
+        {
+            // start fade out when the delay time change is detected
+            smoothedDryWet.setTargetValue (0.0f);
+        }
+        else
+        {
+            // start fade in and process dry/wet normally when the delay time is fixed
+            if (areBuffersClear == false && smoothedDryWet.getCurrentValue() == 0.0f)
+                clearBuffers();
+            smoothedDryWet.setTargetValue (*param->delayDryWetParam);
+        }
+        // get feedback and dry/wet values
+        smoothedFeedback.setTargetValue (*param->delayFeedbackParam);
+        feedback = smoothedFeedback.getNextValue();
+        dryWet = smoothedDryWet.getNextValue();
+        // increment buffers write position
         writeIndex = (writeIndex + 1) % sizeInSamples;
     }
 };

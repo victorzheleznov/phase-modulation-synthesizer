@@ -40,7 +40,7 @@ public:
         }
         isReverbReset = false;
         // process reverb
-        assignParameters();
+        updateParameters();
         int numChannels = outputBuffer.getNumChannels();
         if (numChannels == 1)
             reverb.processMono (outputBuffer.getWritePointer (0), numSamples);
@@ -54,7 +54,7 @@ private:
     bool isReverbReset;  // flag for reseted reverb state
 
     /// assign user interface parameters values to reverb
-    void assignParameters()
+    void updateParameters()
     {
         // set reverb parameters
         juce::Reverb::Parameters reverbParameters;
