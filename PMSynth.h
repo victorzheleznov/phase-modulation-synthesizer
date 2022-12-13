@@ -124,7 +124,7 @@ public:
                 // write the current sample to the output buffer for each channel
                 float outSample = filterOut;
                 for (int chan = 0; chan < outputBuffer.getNumChannels(); chan++)
-                    outputBuffer.addSample (chan, sampleIndex, outSample);
+                    outputBuffer.addSample (chan, sampleIndex, 0.3f * outSample);
                 // check envelope end for output operators
                 bool isActive = false;
                 for (int i = 0; i < param->numOperators; i++)
