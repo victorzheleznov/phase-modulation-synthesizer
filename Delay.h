@@ -146,7 +146,6 @@ private:
             readTimeInSamples += float(sizeInSamples);
         float outSample = linearInterpolation (readTimeInSamples, channelIdx); // interpolation between two neighbours
         buffer[channelIdx][writeIndex] = _inSample + feedback * outSample;     // update buffer
-        writeIndex = (writeIndex + 1) % sizeInSamples;
         return (1.0f - dryWet) * _inSample + dryWet * outSample;               // output effect with specified dry/wet
     }
 
@@ -168,7 +167,10 @@ private:
     void processMono (float* samples, int numSamples)
     {
         for (int j = 0; j < numSamples; j++)
+        {
             samples[j] = processSample(samples[j], 0);
+            incrementWriteIndex();
+        }
     }
 
     /// process stereo audio buffer
@@ -181,7 +183,14 @@ private:
         {
             leftSamples[j] = processSample(leftSamples[j], 0);
             rightSamples[j] = processSample(rightSamples[j], 1);
+            incrementWriteIndex();
         }
+    }
+
+    /// increment buffers write position
+    void incrementWriteIndex()
+    {
+        writeIndex = (writeIndex + 1) % sizeInSamples;
     }
 };
 
