@@ -45,8 +45,11 @@ public:
     /// @param float, frequency value in Hz
     void setFrequency (float _frequency)
     {
-        frequency = _frequency;
         jassert (sampleRate > 0.0f); // check if sample rate is set (the default value on initialization is 0)
+        if (_frequency >= 0.5f * sampleRate)
+            frequency = 0.5f * sampleRate;
+        else
+            frequency = _frequency;
         phaseDelta = frequency / sampleRate;
     }
     
