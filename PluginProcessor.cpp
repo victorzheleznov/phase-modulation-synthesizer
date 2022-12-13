@@ -25,12 +25,12 @@ PMSynthAudioProcessor::PMSynthAudioProcessor()
     delay (&param),
     reverb (&param)
 {
+    // add synth voices
     for (int i = 0; i < numVoices; i++)
     {
         synth.addVoice (new PMSynthVoice (&param));
     }
     synth.addSound (new PMSynthSound());
-    //synth.setNoteStealingEnabled (false); // to remove clipping when number of voices is larger that specified amount
 }
 
 PMSynthAudioProcessor::~PMSynthAudioProcessor()
@@ -102,6 +102,7 @@ void PMSynthAudioProcessor::changeProgramName (int index, const juce::String& ne
 //==============================================================================
 void PMSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    // prepare synthesizer, delay and reverb
     synth.setCurrentPlaybackSampleRate (sampleRate);
     delay.prepareToPlay (sampleRate);
     reverb.prepareToPlay (sampleRate);
@@ -141,6 +142,7 @@ bool PMSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) 
 
 void PMSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    // process synthesizer, delay and reverb
     juce::ScopedNoDenormals noDenormals;
     buffer.clear();
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());

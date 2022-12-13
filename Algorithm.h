@@ -1,20 +1,29 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
-#include "Operator.h"
+#include "Operator.h"   // class with operators definition
+#include "Parameters.h" // for accessing parameters set by the user interface
 
+/// Algorithm class which defines phase modulation routing for operators.
 class Algorithm
 {
 public:
+    /// process algorithm
+    /// @param Operator*, array with operators
+    /// @param bool*, empty bool array (should be the same size as the operators array);
+    ///               array gets overwritten: true means the operator outputs sound,
+    ///                                       false means the operator modulates another.
+    /// @return float, output sample
     float process (Operator* ops, bool* isOutput)
     {
         float algorithmOut = 0.0f;
         float opSampleA, opSampleB, opSampleC, opSampleD;
         for (int i = 0; i < numOperators; i++)
             isOutput[i] = false;
+        // switch to specified algorithm
         switch (algorithm)
         {
-        case 0: // D -> C -> B -> A
+        case 0:
             // specify output operators
             isOutput[0] = true;
             // process algorithm
@@ -155,14 +164,17 @@ public:
         return algorithmOut;
     }
 
+    /// initialises algorithm per each note
+    /// @param Parameters*, pointer to the parameters class (that contains 
+    ///                     algorithm number and number of operators)
     void startNote (Parameters* _param)
     {
         algorithm = *_param->algorithm;
         numOperators = _param->numOperators;
     }
 private:
-    int algorithm;
-    int numOperators;
+    int algorithm;    // algorithm number
+    int numOperators; // number of operators
 };
 
 #endif // ALGORITHM_H

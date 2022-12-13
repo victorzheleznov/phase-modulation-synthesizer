@@ -1,20 +1,30 @@
 #ifndef REVERB_H
 #define REVERB_H
 
-#include <JuceHeader.h>
-#include "Parameters.h"
+#include <JuceHeader.h> // for JUCE classes
+#include "Parameters.h" // for accessing parameters set by the user interface
 
+/// Reverb class.
+/// This class is a wrapper class around juce::Reverb that adds parameter
+/// mapping so the effect can be controlled from the user interface.
 class Reverb
 {
 public:
+    /// initialise parameters pointer
+    /// @param Parameters*, pointer to the parameters class
     Reverb (Parameters* _param) :
         param (_param)
-    {}
+    {
+    }
 
+    /// initialise reverb
+    /// @param float, sample rate [Hz]
     void prepareToPlay (float _sampleRate)
     {
+        // reset reverb
         resetReverb();
         reverb.setSampleRate (_sampleRate);
+        // initialise smoothed values
         smoothedDryWet.reset (_sampleRate, 0.1f);
         smoothedDryWet.setCurrentAndTargetValue (0.0f);
         smoothedRoomSize.reset (_sampleRate, 0.1f);
@@ -25,6 +35,9 @@ public:
         smoothedDamping.setCurrentAndTargetValue (0.5f);
     }
 
+    /// apply reverb to an audio buffer
+    /// @param juce::AudioBuffer&, input audio buffer with samples
+    /// @param int, number of samples in the buffer
     void processBlock (juce::AudioSampleBuffer& outputBuffer, int numSamples)
     {
         // check on/off switch
@@ -44,16 +57,18 @@ public:
             reverb.processStereo (outputBuffer.getWritePointer (0), outputBuffer.getWritePointer (1), numSamples);
     }
 private:
-    juce::Reverb reverb;
-    Parameters* param;
-    bool isReverbReset;
+    // base members
+    juce::Reverb reverb; // reverb
+    Parameters* param;   // pointer to parameters set by the user interface
+    bool isReverbReset;  // flag for reseted reverb state
 
     // smoothed values
-    juce::SmoothedValue<float> smoothedDryWet;
-    juce::SmoothedValue<float> smoothedRoomSize;
-    juce::SmoothedValue<float> smoothedWidth;
-    juce::SmoothedValue<float> smoothedDamping;
+    juce::SmoothedValue<float> smoothedDryWet;   // smoothed dry/wet
+    juce::SmoothedValue<float> smoothedRoomSize; // smoothed room size
+    juce::SmoothedValue<float> smoothedWidth;    // smoothed width
+    juce::SmoothedValue<float> smoothedDamping;  // smoothed damping
 
+    /// assign user interface parameters values to reverb
     void assignParameters()
     {
         // set target values
@@ -70,7 +85,8 @@ private:
         reverbParameters.damping = smoothedDamping.getNextValue();
         reverb.setParameters (reverbParameters);
     }
-
+    
+    /// reset reverb
     void resetReverb()
     {
         reverb.reset();

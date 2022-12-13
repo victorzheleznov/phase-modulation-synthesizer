@@ -9,6 +9,8 @@
 class OscSwitch
 {
 public:
+    /// process oscillator
+    /// @return float, oscillator sample
     float process()
     {
         float oscSample = osc->process();
@@ -106,7 +108,7 @@ public:
         osc->setDC (_dc);
     }
 
-    /// set power value for oscillator output (useful for amplitude modulation and LFO's)
+    /// set power value for oscillator output (useful for amplitude modulation and LFOs)
     /// @param float, power
     void setPower (float _power)
     {
@@ -116,11 +118,15 @@ public:
         osc->setPower (_power);
     }
 
+    /// get oscillator current phase
+    /// @return float, phase
     float getPhase()
     {
         return phase;
     }
 
+    /// set oscillator phase (useful to reset phase)
+    /// @param float, phase (from 0 to 1)
     void setPhase (float _phase)
     {
         osc->setPhase (_phase);
@@ -136,7 +142,7 @@ private:
     float amplitudeOffset = 0.0f; // amplitude offset
     float dc = 0.0f;              // direct current
     float power = 1.0f;           // power
-    float phase = 0.0f;
+    float phase = 0.0f;           // phase
 };
 
 #endif // OSC_SWITCH_H

@@ -62,14 +62,14 @@ public:
 
 private:
     // define constants
-    const int numVoices = 16;
-    const int numOperators = 4; // A, B, C, D operators
-    const int numLFOs = 2;
+    const int numVoices = 16;   // number of synthesizer voices
+    const int numOperators = 4; // number of operators
+    const int numLFOs = 2;      // number of LFOs
 
-    Parameters param;
-    juce::Synthesiser synth;
-    Delay delay;
-    Reverb reverb;
+    Parameters param;           // parameters from user interface
+    juce::Synthesiser synth;    // synthesizer
+    Delay delay;                // delay
+    Reverb reverb;              // reverb
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PMSynthAudioProcessor)
 };

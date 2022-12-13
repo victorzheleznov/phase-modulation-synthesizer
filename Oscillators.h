@@ -1,7 +1,7 @@
 #ifndef OSCILLATORS_H
 #define OSCILLATORS_H
 
-#include <cmath> // for sin(), powf()
+#include <cmath>        // for sin(), powf()
 #include <JuceHeader.h> // for jassert()
 
 /// Base phasor class.
@@ -87,11 +87,15 @@ public:
         power = _power;
     }
 
+    /// set oscillator phase (useful to reset phase)
+    /// @param float, phase (from 0 to 1)
     void setPhase (float _phase)
     {
         phase = _phase;
     }
 
+    /// get oscillator current phase
+    /// @return float, phase
     float getPhase()
     {
         return phase;

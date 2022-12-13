@@ -1,13 +1,19 @@
 #ifndef OPERATOR_H
 #define OPERATOR_H
 
-#include <JuceHeader.h>
-#include "OscSwitch.h"
-#include "Parameters.h"
+#include <JuceHeader.h> // for juce::ADSR
+#include "OscSwitch.h"  // for oscillator with variable waveshape
+#include "Parameters.h" // for accessing parameters set by the user interface
 
+/// Operator class.
+/// A class instance consists of an oscillator with
+/// variable waveshape, an amplitude envelope and
+/// a pitch envelope.
 class Operator
 {
 public:
+    /// process operator with amplitude and pitch envelopes
+    /// @return float, output sample
     float process()
     {
         float envVal = env.getNextSample();
@@ -66,6 +72,9 @@ public:
 
     /// set amplitude envelope parameters
     /// @param float, attack
+    /// @param float, decay
+    /// @param float, sustain
+    /// @param float, release
     void setEnvParameters (float _attack, float _decay, float _sustain, float _release)
     {
         juce::ADSR::Parameters envParam(_attack, _decay, _sustain, _release);
@@ -82,7 +91,12 @@ public:
         pitchEnvInitialLevel = _initialLevel;
     }
 
-    /// start the attack phase of the envelope
+    /// start the attack phase of amplitude and picth envelopes and update operator's parameters
+    /// @param Parameters*, pointer to parameters set by the user interface
+    /// @param int, operator index
+    /// @param float, midi note frequency
+    /// @param float, midi note velocity
+    /// @param float, sample rate [Hz]
     void startNote (Parameters* _param, int _idx, float _freq, float _velocity, float _sampleRate)
     {
         env.reset();
@@ -98,14 +112,14 @@ public:
             pitchEnv.noteOn();
     }
 
-    /// start the release phase of the envelope
+    /// start the release phase of amplitude and picth envelopes
     void stopNote()
     {
         env.noteOff();
         pitchEnv.noteOff();
     }
 
-    /// check if envelope is active
+    /// check if amplitude envelope is active
     /// @return bool, if the envelope is in its attack, decay, sustain or release stage
     bool isEnvActive()
     {
@@ -113,14 +127,14 @@ public:
     }
 private:
     // base members
-    OscSwitch osc;
-    juce::ADSR env;
-    juce::ADSR pitchEnv;
-    float frequency;
-    int pitchEnvInitialLevel = 0; // initial level for pitch envelope in semitones
+    OscSwitch osc;                // oscillator with variable waveshape
+    juce::ADSR env;               // amplitude envelope
+    juce::ADSR pitchEnv;          // pitch envelope
+    float frequency;              // oscillator frequency [Hz]
+    int pitchEnvInitialLevel = 0; // initial level for pitch envelope [semitones]
     // modulation variables
-    float amplitudeOffset = 0.0f;
-    float phaseOffset = 0.0f;
+    float amplitudeOffset = 0.0f; // amplitude offset set by an external source
+    float phaseOffset = 0.0f;     // phase offset set by an external source
     
     /// reset external modulations for operator (amplitude and phase modulation)
     void resetModulations()

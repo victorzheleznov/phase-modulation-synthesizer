@@ -1,19 +1,29 @@
 #ifndef LFO_H
 #define LFO_H
 
-#include "OscSwitch.h"
+#include <JuceHeader.h> // for juce::NormalisableRange and juce::SmoothedValue
+#include "OscSwitch.h"  // base oscillator class
+#include "Parameters.h" // for accessing parameters set by the user interface
 
-// wrapped class around OscSwith
+/// LFO class wrapped around OscSwitch oscillator class.
+/// LFO class stores information about possible routings
+/// in the user interface. Class contains a set of methods 
+/// for checking if an LFO instance is applied to a particular 
+/// variable. LFO class needs to be revisited if there were
+/// changes to the routing parameters in the user interface.
 class LFO
 {
 public:
-    /// constructor that resets filter instance
+    /// constructor that initialises LFO frequency range
+    /// @param juce::NormalisableRange<float>, frequency range
     LFO(juce::NormalisableRange<float> frequencyRange)
         : minFrequency(frequencyRange.start), maxFrequency(frequencyRange.end)
     {
         frequencyMaxOffset = 0.5 * (maxFrequency - minFrequency); // max frequency offset for an external LFO
     }
 
+    /// process LFO
+    /// @param float, output sample
     float process()
     {
         // LFO amount
@@ -28,6 +38,7 @@ public:
             freq = maxFrequency;
         if (freq < minFrequency)
             freq = minFrequency;
+        // calculate smoothed value
         lfo.setFrequency (freq);
         float lfoSample = am * lfo.process();
         smoothedLFOValue.setTargetValue (lfoSample);
@@ -73,17 +84,24 @@ public:
         lfo.setAmplitude (_amplitude);
     }
 
+    /// set LFO amount
+    /// @param float, LFO amount (from -1 to 1)
     void setAmount (float _amount)
     {
         amount = _amount;
     }
 
+    /// set LFO amount offset (useful for external modulations)
+    /// @param float, offset for LFO amount
     void setAmountOffset (float _amountOffset)
     {
         amountOffset += _amountOffset;
     }
 
-    /// start the attack phase of the envelope
+    /// update LFO parameters
+    /// @param Parameters*, pointer to parameters set by the user interface
+    /// @param int, LFO index
+    /// @param float, samples rate [Hz]
     void startNote (Parameters* _param, int _idx, float _sampleRate)
     {
         (*this).setWaveshape (*_param->lfoWaveshapeParam[_idx]);
@@ -99,11 +117,10 @@ public:
         smoothedLFOValue.setCurrentAndTargetValue (0.0f);
     }
 
-    /// start the release phase of the envelope
-    void stopNote()
-    {}
-
-    ///
+    /// check if LFO is applied to the operator level
+    /// @param int, LFO destination
+    /// @param int, number of operators in the synth
+    /// @return bool, true if LFO is applied
     bool isAppliedToOpLevel (int lfoDestination, int numOperators)
     {
         if (lfoDestination < numOperators)
@@ -112,6 +129,10 @@ public:
             return false;
     }
 
+    /// check if LFO is applied to operators phases
+    /// @param int, LFO destination
+    /// @param int, number of operators in the synth
+    /// @return bool, true if LFO is applied
     bool isAppliedToOpsPhase (int lfoDestination, int numOperators)
     {
         if (lfoDestination == numOperators)
@@ -120,6 +141,10 @@ public:
             return false;
     }
 
+    /// check if LFO is applied to filter cutoff frequency
+    /// @param int, LFO destination
+    /// @param int, number of operators in the synth
+    /// @return bool, true if LFO is applied
     bool isAppliedToFilterFreq (int lfoDestination, int numOperators)
     {
         if (lfoDestination == numOperators + 1)
@@ -128,6 +153,10 @@ public:
             return false;
     }
 
+    /// check if LFO is applied to filter resonance
+    /// @param int, LFO destination
+    /// @param int, number of operators in the synth
+    /// @return bool, true if LFO is applied
     bool isAppliedToFilterRes (int lfoDestination, int numOperators)
     {
         if (lfoDestination == numOperators + 2)
@@ -136,6 +165,11 @@ public:
             return false;
     }
 
+    /// check if LFO is applied to another LFO's rate
+    /// @param int, LFO destination
+    /// @param int, number of operators in the synth
+    /// @param int, number of LFOs in the synth
+    /// @return bool, true if LFO is applied
     bool isAppliedToLFORate (int lfoDestination, int numOperators, int numLFOs)
     {
         int idxStart = numOperators + 3;
@@ -145,6 +179,11 @@ public:
             return false;
     }
 
+    /// check if LFO is applied to another LFO's amount
+    /// @param int, LFO destination
+    /// @param int, number of operators in the synth
+    /// @param int, number of LFOs in the synth
+    /// @return bool, true if LFO is applied
     bool isAppliedToLFOAmount (int lfoDestination, int numOperators, int numLFOs)
     {
         int idxStart = numOperators + 3;
@@ -161,7 +200,7 @@ private:
     // LFO parameters
     float amount;
     float frequency;
-    float phase = 0.0f; // is storesd so there is an option to not retrigger LFO with a new note
+    float phase = 0.0f; // is stored so there is an option to not retrigger LFO with a new note
     // modulation parameters
     float amountOffset = 0.0f;
     float frequencyOffset = 0.0f;

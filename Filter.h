@@ -2,16 +2,16 @@
 #define FILTER_MOD_H
 
 #include <JuceHeader.h> // for defining juce classes variables
-#include "Parameters.h"
+#include "Parameters.h" // for accessing parameters set by the user interface
 
-/// Filter class with two build-in LFOs for cutoff and resonance modulation.
-/// Filter type can be set by passing a pointer to a coefficients function using
-/// setFilterCoefficientsFunction() class method thus the class itself isn't
-/// dependent on a particular filter type.
+/// Filter class.
+/// Filter type can be set by using setType() class method.
 class Filter
 {
 public:
-    /// constructor that resets filter instance
+    /// constructor that resets filter instance and initialises frequency range for cutoff and resonance
+    /// @param juce::NormalisableRange<float>, range for cutoff frequency
+    /// @param juce::NormalisableRange<float>, range for resonance
     Filter(juce::NormalisableRange<float> frequencyRange, juce::NormalisableRange<float> resonanceRange)
         : minFrequency(frequencyRange.start), maxFrequency(frequencyRange.end), minResonance(resonanceRange.start), maxResonance(resonanceRange.end)
     {
@@ -26,7 +26,7 @@ public:
     float process (float _inSample)
     {
         jassert (sampleRate > 0.0f); // check if sample rate is set (the default value on initialization is 0)
-        float envVal = env.getNextSample(); // SHOULD BE LOGARITHMIC CHANGE!!!!!!!!!!!!!!!!!!!!!!!!!
+        float envVal = env.getNextSample();
         // calculate frequency with modulations
         float freq = frequency + envAmount * envVal * frequencyMaxOffset + frequencyOffset;
         // check bounds
@@ -90,8 +90,11 @@ public:
         }
     }
 
-    /// set attack for envelope
+    /// set ADSR parameters for a filter cutoff envelope
     /// @param float, attack
+    /// @param float, decay
+    /// @param float, sustain
+    /// @param float, release
     void setEnvParameters (float _attack, float _decay, float _sustain, float _release)
     {
         juce::ADSR::Parameters envParam(_attack, _decay, _sustain, _release);
@@ -99,13 +102,15 @@ public:
     }
 
     /// set envelope amount
-    /// @param float, envelope amound (-100% to 100%)
+    /// @param float, envelope amount (-100% to 100%)
     void setEnvAmount (float _envAmount)
     {
         envAmount = _envAmount;
     }
 
-    /// start the attack phase of the envelope and update parameters
+    /// start the attack phase of the filter cutoff envelope and update filter's parameters
+    /// @param Parameters*, pointer to parameters set by the user interface
+    /// @param float, sample rate [Hz]
     void startNote (Parameters* param, float _sampleRate)
     {
         filter.reset();
@@ -121,20 +126,20 @@ public:
         env.noteOn();
     }
 
-    /// start the release phase of the envelope
+    /// start the release phase of the filter cutoff envelope
     void stopNote()
     {
         env.noteOff();
     }
 
-    /// set frequency offset
+    /// set frequency offset (used for external modulations)
     /// @param float, frequency offset amount (from -1 to 1)
     void setFrequencyOffset (float _frequencyOffsetAmount)
     {
         frequencyOffset += _frequencyOffsetAmount * frequencyMaxOffset;
     }
 
-    /// set resonance offset
+    /// set resonance offset (used for external modulations)
     /// @param float, resonance offset amount (from -1 to 1)
     void setResonanceOffset (float _resonanceOffsetAmount)
     {
@@ -145,7 +150,7 @@ private:
     // base members
     juce::IIRFilter filter;                                                                          // filter instance
     juce::IIRCoefficients (*makeFilterCoefficients) (double sampleRate, double frequency, double Q); // pointer to a function with calculates filter coefficiens using specified sample rate, cutoff frequency and resonance
-    juce::ADSR env;                                                                                  // envelope
+    juce::ADSR env;                                                                                  // filter cutoff envelope
     // filter parameters
     float frequency;
     float resonance;

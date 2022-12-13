@@ -1,71 +1,78 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
-#include <JuceHeader.h>
-#include <sstream>
-#include <string>
+#include <JuceHeader.h> // for JUCE classes
+#include <string>       // for std::string
 
+/// Parameters class.
+/// This class handles creation of parameter layout
+/// and assignment of AudioProcessorValueTreeState's
+/// parameter pointers to public variables of this
+/// class. A pointer to a Parameters class can be
+/// passed to any other class where access to user
+/// defined parameters is needed.
 class Parameters
 {
 public:
+    // define value tree
     juce::AudioProcessorValueTreeState apvts;
 
-    // define parameters
-    const int numOperators; // A, B, C, D operators
+    // define number of operators and oscillators in the synth
+    const int numOperators;
     const int numLFOs;
 
-    // on/off switches
-
     // operators parameters
-    std::atomic<float>* algorithm;
-    std::atomic<float>* opLevelParam[4];
-    std::atomic<float>* opCoarseParam[4];
-    std::atomic<float>* opFineParam[4];
-    std::atomic<float>* opWaveshapeParam[4];
-    std::atomic<float>* opAttackParam[4];
-    std::atomic<float>* opDecayParam[4];
-    std::atomic<float>* opSustainParam[4];
-    std::atomic<float>* opReleaseParam[4];
+    std::atomic<float>* algorithm;                 // algorithm number
+    std::atomic<float>* opLevelParam[4];           // operators' levels
+    std::atomic<float>* opCoarseParam[4];          // operators' coarse frequency
+    std::atomic<float>* opFineParam[4];            // operators' fine frequency
+    std::atomic<float>* opWaveshapeParam[4];       // operators' waveshape
+    std::atomic<float>* opAttackParam[4];          // attack for operators' amplitudes
+    std::atomic<float>* opDecayParam[4];           // decay for operators' amplitudes
+    std::atomic<float>* opSustainParam[4];         // sustain for operators' amplitudes
+    std::atomic<float>* opReleaseParam[4];         // release for operators' amplitudes
     // filter parameters
-    std::atomic<float>* filterOnParam;
-    std::atomic<float>* filterTypeParam;
-    std::atomic<float>* filterFrequencyParam;
-    std::atomic<float>* filterResonanceParam;
-    std::atomic<float>* filterEnvAmountParam;
-    std::atomic<float>* filterAttackParam;
-    std::atomic<float>* filterDecayParam;
-    std::atomic<float>* filterSustainParam;
-    std::atomic<float>* filterReleaseParam;
-    // LFO parameters
-    std::atomic<float>* lfoOnParam[2];
-    std::atomic<float>* lfoDestinationParam[2];
-    std::atomic<float>* lfoWaveshapeParam[2];
-    std::atomic<float>* lfoRateParam[2];
-    std::atomic<float>* lfoAmountParam[2];
-    std::atomic<float>* lfoRetriggerParam[2];
+    std::atomic<float>* filterOnParam;             // on/off switch for filter
+    std::atomic<float>* filterTypeParam;           // filter type
+    std::atomic<float>* filterFrequencyParam;      // filter cutoff frequency
+    std::atomic<float>* filterResonanceParam;      // filter resonance
+    std::atomic<float>* filterEnvAmountParam;      // amount for the cutoff envelope
+    std::atomic<float>* filterAttackParam;         // attack for the cutoff envelope
+    std::atomic<float>* filterDecayParam;          // decay for the cutoff envelope
+    std::atomic<float>* filterSustainParam;        // sustain for the cutoff envelope
+    std::atomic<float>* filterReleaseParam;        // release for the cutoff envelope
+    // LFOs parameters
+    std::atomic<float>* lfoOnParam[2];             // on/off switch for LFOs
+    std::atomic<float>* lfoDestinationParam[2];    // LFOs destinations
+    std::atomic<float>* lfoWaveshapeParam[2];      // LFOs waveshapes
+    std::atomic<float>* lfoRateParam[2];           // LFOs rate
+    std::atomic<float>* lfoAmountParam[2];         // LFOs amount
+    std::atomic<float>* lfoRetriggerParam[2];      // LFOs retrigger switch
     // pitch envelope parameters
-    std::atomic<float>* pitchEnvOnParam;
-    std::atomic<float>* pitchEnvInitialLevelParam;
-    std::atomic<float>* pitchEnvDecayParam;
+    std::atomic<float>* pitchEnvOnParam;           // on/off switch for operators pitch envelope
+    std::atomic<float>* pitchEnvInitialLevelParam; // initial level for pitch envelope
+    std::atomic<float>* pitchEnvDecayParam;        // decay for pitch envelope
     // delay parameters
-    std::atomic<float>* delayOnParam;
-    std::atomic<float>* delayDryWetParam;
-    std::atomic<float>* delayTimeParam[2];
-    std::atomic<float>* delayTimeLinkParam;
-    std::atomic<float>* delayFeedbackParam;
+    std::atomic<float>* delayOnParam;              // on/off switch for delay
+    std::atomic<float>* delayDryWetParam;          // delay dry/wet
+    std::atomic<float>* delayTimeParam[2];         // delay time for left/right channels
+    std::atomic<float>* delayTimeLinkParam;        // delay stereo link switch
+    std::atomic<float>* delayFeedbackParam;        // delay feedback
     // reverb parameters
-    std::atomic<float>* reverbOnParam;
-    std::atomic<float>* reverbDryWetParam;
-    std::atomic<float>* reverbRoomSizeParam;
-    std::atomic<float>* reverbWidthParam;
-    std::atomic<float>* reverbDampingParam;
+    std::atomic<float>* reverbOnParam;             // on/off switch for reverb
+    std::atomic<float>* reverbDryWetParam;         // reverb dry/wet
+    std::atomic<float>* reverbRoomSizeParam;       // reverb room size
+    std::atomic<float>* reverbWidthParam;          // reverb width
+    std::atomic<float>* reverbDampingParam;        // reverb damping
     
     /// create parameters layout
+    /// @param int, number of operators in the synthesizer
+    /// @param int, number of LFOs in the sunthesizer
     /// @return, parameter layout
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout(const int numOperators, const int numLFOs)
     {
-        juce::AudioProcessorValueTreeState::ParameterLayout layout;
-        juce::StringArray lfoDestinations;
+        juce::AudioProcessorValueTreeState::ParameterLayout layout; // parameters layout
+        juce::StringArray lfoDestinations;                          // possible destinations for LFOs
         // algorithm
         layout.add (std::make_unique<juce::AudioParameterChoice> ("algorithm", "PM algorithm", juce::StringArray{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"}, 0));
         // operators layout
@@ -138,7 +145,9 @@ public:
     }
 
     /// constructor which initializes parameter layout and assigns parameter pointers to public class variables
-    /// @param audio processor
+    /// @param AudioProcessor&, audio processor
+    /// @param int, number of operators in the synthesizer
+    /// @param int, number of LFOs in the sunthesizer
     Parameters (juce::AudioProcessor& audioProcessor, const int _numOperators, const int _numLFOs) :
         numOperators (_numOperators), numLFOs (_numLFOs), 
         apvts (audioProcessor, nullptr, "ParameterTree", createParameterLayout(_numOperators, _numLFOs))
@@ -200,6 +209,9 @@ public:
         reverbDampingParam = apvts.getRawParameterValue ("reverbDamping");
     }
 private:
+    /// get nth letter from alphabet
+    /// @param int, letter's number in alphabet
+    /// @return char, alphaber letter
     char getLetter(int n)
     {
         jassert (n >= 0 && n <= 26);
