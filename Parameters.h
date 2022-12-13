@@ -131,8 +131,8 @@ public:
         // delay
         layout.add (std::make_unique<juce::AudioParameterBool> ("delayOn", "Delay: on", false));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("delayDryWet", "Delay: dry/wet", 0.0f, 1.0f, 0.0f));
-        layout.add (std::make_unique<juce::AudioParameterFloat> ("delayTimeLeft", "Delay: left time", 0.1f, 5.0f, 0.1f));
-        layout.add (std::make_unique<juce::AudioParameterFloat> ("delayTimeRight", "Delay: right time", 0.1f, 5.0f, 0.1f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("delayTimeLeft", "Delay: left time", juce::NormalisableRange<float> (1e-2f, 3.0f, 0.0f, 0.5f), 0.5f));
+        layout.add (std::make_unique<juce::AudioParameterFloat> ("delayTimeRight", "Delay: right time", juce::NormalisableRange<float> (1e-2f, 3.0f, 0.0f, 0.5f), 0.5f));
         layout.add (std::make_unique<juce::AudioParameterBool> ("delayTimeLink", "Delay: link stereo", true));
         layout.add (std::make_unique<juce::AudioParameterFloat> ("delayFeedback", "Delay: feedback", 0.0f, 1.0f, 0.0f));
         // reverb
