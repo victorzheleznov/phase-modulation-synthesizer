@@ -84,7 +84,7 @@ public:
             paramNameBase.push_back (getLetter (i));
             layout.add (std::make_unique<juce::AudioParameterChoice> ((paramIdBase + "Waveshape").c_str(), (paramNameBase + ": waveshape").c_str(), juce::StringArray{"Sine", "Triangle", "Saw", "Square"}, 0));
             layout.add (std::make_unique<juce::AudioParameterInt> ((paramIdBase + "Coarse").c_str(), (paramNameBase + ": coarse").c_str(), 1, 48, 1));
-            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Fine").c_str(), (paramNameBase + ": fine").c_str(), 0.0f, 1000.0f, 0.0f));
+            layout.add (std::make_unique<juce::AudioParameterInt> ((paramIdBase + "Fine").c_str(), (paramNameBase + ": fine").c_str(), 0, 1000, 0));
             if (i == 0)
                 layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Level").c_str(), (paramNameBase + ": level").c_str(), 0.0f, 1.0f, 1.0f));
             else
