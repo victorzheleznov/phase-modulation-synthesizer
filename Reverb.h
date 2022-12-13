@@ -24,15 +24,6 @@ public:
         // reset reverb
         resetReverb();
         reverb.setSampleRate (_sampleRate);
-        // initialise smoothed values
-        smoothedDryWet.reset (_sampleRate, 0.1f);
-        smoothedDryWet.setCurrentAndTargetValue (0.0f);
-        smoothedRoomSize.reset (_sampleRate, 0.1f);
-        smoothedRoomSize.setCurrentAndTargetValue (0.5f);
-        smoothedWidth.reset (_sampleRate, 0.1f);
-        smoothedWidth.setCurrentAndTargetValue (0.5f);
-        smoothedDamping.reset (_sampleRate, 0.1f);
-        smoothedDamping.setCurrentAndTargetValue (0.5f);
     }
 
     /// apply reverb to an audio buffer
@@ -62,27 +53,16 @@ private:
     Parameters* param;   // pointer to parameters set by the user interface
     bool isReverbReset;  // flag for reseted reverb state
 
-    // smoothed values
-    juce::SmoothedValue<float> smoothedDryWet;   // smoothed dry/wet
-    juce::SmoothedValue<float> smoothedRoomSize; // smoothed room size
-    juce::SmoothedValue<float> smoothedWidth;    // smoothed width
-    juce::SmoothedValue<float> smoothedDamping;  // smoothed damping
-
     /// assign user interface parameters values to reverb
     void assignParameters()
     {
-        // set target values
-        smoothedDryWet.setTargetValue (*param->reverbDryWetParam);
-        smoothedRoomSize.setTargetValue (*param->reverbRoomSizeParam);
-        smoothedWidth.setTargetValue (*param->reverbWidthParam);
-        smoothedDamping.setTargetValue (*param->reverbDampingParam);
         // set reverb parameters
         juce::Reverb::Parameters reverbParameters;
-        reverbParameters.dryLevel = 1.0f - smoothedDryWet.getNextValue();
+        reverbParameters.dryLevel = 1.0f - *param->reverbDryWetParam;
         reverbParameters.wetLevel = 1.0f - reverbParameters.dryLevel;
-        reverbParameters.roomSize = smoothedRoomSize.getNextValue();
-        reverbParameters.width = smoothedWidth.getNextValue();
-        reverbParameters.damping = smoothedDamping.getNextValue();
+        reverbParameters.roomSize = *param->reverbRoomSizeParam;
+        reverbParameters.width = *param->reverbWidthParam;
+        reverbParameters.damping = *param->reverbDampingParam;
         reverb.setParameters (reverbParameters);
     }
     
