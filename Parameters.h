@@ -31,6 +31,8 @@ public:
     std::atomic<float>* opDecayParam[4];           // decay for operators' amplitudes
     std::atomic<float>* opSustainParam[4];         // sustain for operators' amplitudes
     std::atomic<float>* opReleaseParam[4];         // release for operators' amplitudes
+    std::atomic<float>* opFixedModeParam[4];       // on/off switch for operators' fixed frequency mode
+    std::atomic<float>* opFixedFreqParam[4];       // fixed frequency for operators' amplitudes
     // filter parameters
     std::atomic<float>* filterOnParam;             // on/off switch for filter
     std::atomic<float>* filterTypeParam;           // filter type
@@ -93,6 +95,8 @@ public:
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Decay").c_str(), (paramNameBase + ": decay").c_str(), juce::NormalisableRange<float> (1e-3f, 60.0f, 0.0f, 0.25f), 1.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Sustain").c_str(), (paramNameBase + ": sustain").c_str(), 0.0f, 1.0f, 1.0f));
             layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "Release").c_str(), (paramNameBase + ": release").c_str(), juce::NormalisableRange<float> (1e-3f, 60.0f, 0.0f, 0.25f), 1.0f));
+            layout.add (std::make_unique<juce::AudioParameterBool> ((paramIdBase + "FixedMode").c_str(), (paramNameBase + ": fixed freq mode").c_str(), false));
+            layout.add (std::make_unique<juce::AudioParameterFloat> ((paramIdBase + "FixedFreq").c_str(), (paramNameBase + ": frequency").c_str(), juce::NormalisableRange<float> (10.0f, 2000.0f, 0.0f, 0.25f), 100.0f));
             lfoDestinations.add ((paramNameBase + " level").c_str());
         }
         lfoDestinations.add ("Operators phase");
@@ -167,6 +171,8 @@ public:
             opDecayParam[i] = apvts.getRawParameterValue (paramIdBase + "Decay");
             opSustainParam[i] = apvts.getRawParameterValue (paramIdBase + "Sustain");
             opReleaseParam[i] = apvts.getRawParameterValue (paramIdBase + "Release");
+            opFixedModeParam[i] = apvts.getRawParameterValue (paramIdBase + "FixedMode");
+            opFixedFreqParam[i] = apvts.getRawParameterValue (paramIdBase + "FixedFreq");
         }
         // filter parameters
         filterOnParam = apvts.getRawParameterValue ("filterOn");

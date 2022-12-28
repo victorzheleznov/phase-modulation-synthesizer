@@ -41,10 +41,15 @@ public:
     /// @param int, unused
     void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound*, int /*currentPitchWheelPosition*/) override
     {
-        float freq = juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber);
         // prepare operators
+        float freqMidi = juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber);
         for (int i = 0; i < param->numOperators; i++)
         {
+            float freq = 0.0f;
+            if (*param->opFixedModeParam[i] == false)
+                freq = freqMidi;
+            else
+                freq = *param->opFixedFreqParam[i];
             ops[i].startNote (param, i, freq, velocity, getSampleRate());
         }
         // prepare algorithm
