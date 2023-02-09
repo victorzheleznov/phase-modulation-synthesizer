@@ -4,8 +4,8 @@
 
 This repository includes JUCE implementation of a phase modulation synthesizer with:
 - four operators with selectable waveshape (sine, triangle, saw or square);
-- a filter (lowpass, highpass, bandpass or notch);
-- two LFOs;
+- a filter (lowpass, highpass, bandpass or notch) with a cutoff envelope;
+- two LFOs with different routing options (operators level and phase, filter frequency and resonance, another LFO rate);
 - a pitch envelope;
 - built-in delay and reverb effects.
 
