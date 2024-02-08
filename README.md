@@ -15,7 +15,7 @@ Sound examples can be found [here](https://soundcloud.com/ferrumovich/sets/pmsyn
 <img src="https://user-images.githubusercontent.com/53834063/217703986-74b3b422-ad81-4318-a732-4486f84b2894.png" width="650">
 </p>
 <p align="center">
-Fig. 1: phase modulation algorithms (adopted from <a href="https://www.ableton.com/en/manual/live-instrument-reference/#26-6-operator">Ableton's Operator</a>).
+Fig. 1: phase modulation algorithms (adopted from <a href="https://www.ableton.com/en/manual/live-instrument-reference/#operator">Ableton's Operator</a>).
 </p>
 
 ### Build instructions ###
